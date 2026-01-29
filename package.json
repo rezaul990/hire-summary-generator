@@ -2,6 +2,9 @@
   "name": "walton-summary",
   "version": "1.0.0",
   "private": true,
+  "description": "Walton Division & Area Wise Collection Summary Analysis Tool",
+  "author": "Your Name",
+  "homepage": "./",
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

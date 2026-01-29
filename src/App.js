@@ -12,10 +12,7 @@ function App() {
   const [divisions, setDivisions] = useState([]);
   const [selectedDivision, setSelectedDivision] = useState('');
   const [selectedArea, setSelectedArea] = useState('');
-  const [areas, setAreas] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [previousData, setPreviousData] = useState(null);
-  const [showDailyComparison, setShowDailyComparison] = useState(false);
 
   const toNumber = (val) => {
     if (val === null || val === undefined || val === '') return 0;
@@ -36,16 +33,42 @@ function App() {
   };
 
   const handleFile = (file) => {
+    if (!file) return;
+    
+    // Validate file type
+    const validTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+    if (!validTypes.includes(file.type)) {
+      alert('❌ Please upload a valid Excel file (.xls or .xlsx)');
+      return;
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('❌ File size exceeds 10MB limit');
+      return;
+    }
+
     setLoading(true);
     const reader = new FileReader();
 
     reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      const raw = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const raw = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
 
-      processData(raw);
+        processData(raw);
+      } catch (error) {
+        alert('❌ Error reading file. Please ensure it is a valid Excel file.');
+        console.error('File read error:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    reader.onerror = () => {
+      alert('❌ Error reading file');
       setLoading(false);
     };
 
