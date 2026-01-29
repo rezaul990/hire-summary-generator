@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Walton Division & Area Wise Summary</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  padding: 20px;
+  background: #f4f6f8;
+}
+h2 {
+  color: #222;
+}
+input {
+  margin: 12px 0;
+}
+#dropZone {
+  border: 2px dashed #2c3e50;
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 12px 0;
+}
+#dropZone:hover {
+  background: #ecf0f1;
+  border-color: #1f2d3d;
+}
+#dropZone.dragover {
+  background: #d5e8f7;
+  border-color: #2c3e50;
+  box-shadow: 0 0 10px rgba(44, 62, 80, 0.2);
+}
+#dropZone p {
+  margin: 0;
+  color: #555;
+  font-size: 16px;
+}
+#dropZone .small {
+  font-size: 12px;
+  color: #999;
+  margin-top: 8px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 20px;
+  background: white;
+}
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: right;
+  font-size: 14px;
+}
+th {
+  background: #2c3e50;
+  color: white;
+  text-align: center;
+}
+td:first-child, td:nth-child(2) {
+  text-align: left;
+}
+button {
+  padding: 10px 16px;
+  margin-top: 12px;
+  cursor: pointer;
+  border: none;
+  background: #2c3e50;
+  color: white;
+}
+button:hover {
+  background: #1f2d3d;
+}
+.subtotal-row {
+  background: #ecf0f1;
+  font-weight: bold;
+}
+.subtotal-row td {
+  background: #ecf0f1;
+  border-top: 2px solid #2c3e50;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📊 Walton Division & Area Wise Summary</h2>
+
+<div id="dropZone">
+  <p>📁 Drag and drop your Excel file here</p>
+  <p class="small">or click to browse</p>
+</div>
+
+<input type="file" id="fileInput" accept=".xls,.xlsx" style="display: none;" />
+
+<table id="summaryTable"></table>
+
+<h2 style="margin-top: 40px;">📍 Area Wise Summary with Plaza Details</h2>
+
+<div>
+  <label for="divisionFilter" style="margin-right: 10px;">Filter by Division:</label>
+  <select id="divisionFilter" style="padding: 8px 12px; font-size: 14px; cursor: pointer;">
+    <option value="">All Divisions</option>
+  </select>
+</div>
+
+<table id="areaWiseTable"></table>
+
+<button onclick="downloadExcel()">⬇ Download Summary Excel</button>
+
+<script>
+const fileInput = document.getElementById("fileInput");
+const dropZone = document.getElementById("dropZone");
+
+// Click to browse
+dropZone.addEventListener("click", () => fileInput.click());
+
+// Drag and drop events
+dropZone.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  dropZone.classList.add("dragover");
+});
+
+dropZone.addEventListener("dragleave", () => {
+  dropZone.classList.remove("dragover");
+});
+
+dropZone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dropZone.classList.remove("dragover");
+  
+  const files = e.dataTransfer.files;
+  if (files.length > 0) {
+    fileInput.files = files;
+    handleFile({ target: { files: files } });
+  }
+});
+
+fileInput.addEventListener("change", handleFile);
+
+let summaryData = [];
+let areaWiseFullData = [];
+
+// Convert values safely to number
+function toNumber(val) {
+  if (val === null || val === undefined || val === "") return 0;
+  if (typeof val === "string") val = val.replace(/,/g, "");
+  return isNaN(val) ? 0 : Number(val);
+}
+
+// Normalize header text
+function normalize(text) {
+  return String(text).replace(/\s+/g, "").replace(/\./g, "").toLowerCase();
+}
+
+function handleFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const raw = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+
+    process(raw);
+  };
+
+  reader.readAsArrayBuffer(file);
+}
+
+function process(raw) {
+  let headerIndex = -1;
+
+  // Auto detect real header row
+  for (let i = 0; i < raw.length; i++) {
+    const text = raw[i].join(" ").toLowerCase();
+    if (
+      text.includes("division") &&
+      text.includes("area") &&
+      text.includes("plaza") &&
+      text.includes("collectible")
+    ) {
+      headerIndex = i;
+      break;
+    }
+  }
+
+  if (headerIndex === -1) {
+    alert("❌ Could not detect header row.");
+    return;
+  }
+
+  const headers = raw[headerIndex];
+  const dataRows = raw.slice(headerIndex + 1);
+
+  const rows = dataRows.map(r => {
+    let obj = {};
+    headers.forEach((h, i) => obj[h] = r[i]);
+    return obj;
+  });
+
+  generateSummary(rows);
+}
+
+// Find correct column by matching keywords
+function findColumn(row, keywords) {
+  for (let col in row) {
+    const name = normalize(col);
+    if (keywords.some(k => name.includes(k))) return col;
+  }
+  return null;
+}
+
+function generateSummary(rows) {
+  const grouped = {};
+  const areaWiseData = {};
+
+  rows.forEach(row => {
+    const divisionCol = findColumn(row, ["division"]);
+    const areaCol = findColumn(row, ["area"]);
+    const plazaCol = findColumn(row, ["plaza"]);
+
+    const collectibleQtyCol = findColumn(row, ["collectibleaccqty"]);
+    const collectedQtyCol = findColumn(row, ["collectedaccqty"]);
+
+    const collectibleAmtCol = findColumn(row, ["collectibleamt"]);
+    const collectedAmtCol = findColumn(row, ["collectedamt"]);
+
+    const prevOverdueCol = findColumn(row, ["previousmonthoverdue"]);
+    const runOverdueCol = findColumn(row, ["runningmonthoverdue"]);
+    const overdueChangeCol = findColumn(row, ["overdue"]);
+
+    const division = String(row[divisionCol] || "").trim();
+    const area = String(row[areaCol] || "").trim();
+    const plaza = String(row[plazaCol] || "").trim();
+
+    if (!division || !area || division.toLowerCase() === "division" || area.toLowerCase() === "area") return;
+
+    const collectibleQty = toNumber(row[collectibleQtyCol]);
+    const collectedQty = toNumber(row[collectedQtyCol]);
+
+    const collectibleAmt = toNumber(row[collectibleAmtCol]);
+    const collectedAmt = toNumber(row[collectedAmtCol]);
+
+    const prevOverdue = toNumber(row[prevOverdueCol]);
+    const runOverdue = toNumber(row[runOverdueCol]);
+    const overdueChange = toNumber(row[overdueChangeCol]);
+
+    const key = division + "|" + area;
+
+    if (!grouped[key]) {
+      grouped[key] = {
+        Division: division,
+        Area: area,
+        CollectibleQty: 0,
+        CollectedQty: 0,
+        CollectibleAmt: 0,
+        CollectedAmt: 0,
+        PrevOverdue: 0,
+        RunOverdue: 0,
+        OverdueChange: 0
+      };
+    }
+
+    grouped[key].CollectibleQty += collectibleQty;
+    grouped[key].CollectedQty += collectedQty;
+    grouped[key].CollectibleAmt += collectibleAmt;
+    grouped[key].CollectedAmt += collectedAmt;
+    grouped[key].PrevOverdue += prevOverdue;
+    grouped[key].RunOverdue += runOverdue;
+    grouped[key].OverdueChange += overdueChange;
+
+    // Area-wise data with plaza
+    const areaKey = area;
+    if (!areaWiseData[areaKey]) {
+      areaWiseData[areaKey] = [];
+    }
+    areaWiseData[areaKey].push({
+      Division: division,
+      Area: area,
+      Plaza: plaza,
+      Collectible_Acc_Qty: collectibleQty,
+      Collected_Acc_Qty: collectedQty,
+      Collection_Qty_Percent: collectibleQty > 0 ? ((collectedQty / collectibleQty) * 100).toFixed(2) : "0.00",
+      Collectible_Amount: collectibleAmt,
+      Collected_Amount: collectedAmt,
+      Collection_Amt_Percent: collectibleAmt > 0 ? ((collectedAmt / collectibleAmt) * 100).toFixed(2) : "0.00",
+      Previous_Overdue: prevOverdue,
+      Running_Overdue: runOverdue,
+      Overdue_Change: runOverdue - prevOverdue
+    });
+  });
+
+  generateDivisionSummary(grouped);
+  generateAreaWiseSummary(areaWiseData);
+}
+
+function generateDivisionSummary(grouped) {
+
+  let rawData = Object.values(grouped).map(x => {
+    const collectibleQty = x.CollectibleQty;
+    const collectedQty = x.CollectedQty;
+    const collectibleAmt = x.CollectibleAmt;
+    const collectedAmt = x.CollectedAmt;
+    const prevOverdue = x.PrevOverdue;
+    const runOverdue = x.RunOverdue;
+
+    return {
+      Division: x.Division,
+      Area: x.Area,
+      Collectible_Acc_Qty: collectibleQty,
+      Collected_Acc_Qty: collectedQty,
+      Collection_Qty_Percent: collectibleQty > 0 ? ((collectedQty / collectibleQty) * 100).toFixed(2) : "0.00",
+      Collectible_Amount: collectibleAmt,
+      Collected_Amount: collectedAmt,
+      Collection_Amt_Percent: collectibleAmt > 0 ? ((collectedAmt / collectibleAmt) * 100).toFixed(2) : "0.00",
+      Previous_Overdue: prevOverdue,
+      Running_Overdue: runOverdue,
+      Overdue_Change: runOverdue - prevOverdue
+    };
+  });
+
+  // Group by division and add subtotals
+  const divisionGroups = {};
+  rawData.forEach(row => {
+    if (!divisionGroups[row.Division]) {
+      divisionGroups[row.Division] = [];
+    }
+    divisionGroups[row.Division].push(row);
+  });
+
+  summaryData = [];
+  Object.keys(divisionGroups).sort().forEach(division => {
+    const areas = divisionGroups[division];
+    summaryData.push(...areas);
+
+    // Calculate subtotal
+    const collectibleQtySum = areas.reduce((sum, r) => sum + toNumber(r.Collectible_Acc_Qty), 0);
+    const collectedQtySum = areas.reduce((sum, r) => sum + toNumber(r.Collected_Acc_Qty), 0);
+    const collectibleAmtSum = areas.reduce((sum, r) => sum + toNumber(r.Collectible_Amount), 0);
+    const collectedAmtSum = areas.reduce((sum, r) => sum + toNumber(r.Collected_Amount), 0);
+    const prevOverdueSum = areas.reduce((sum, r) => sum + toNumber(r.Previous_Overdue), 0);
+    const runOverdueSum = areas.reduce((sum, r) => sum + toNumber(r.Running_Overdue), 0);
+
+    const subtotal = {
+      Division: `${division} - SUBTOTAL`,
+      Area: "",
+      Collectible_Acc_Qty: collectibleQtySum,
+      Collected_Acc_Qty: collectedQtySum,
+      Collection_Qty_Percent: collectibleQtySum > 0 ? ((collectedQtySum / collectibleQtySum) * 100).toFixed(2) : "0.00",
+      Collectible_Amount: collectibleAmtSum,
+      Collected_Amount: collectedAmtSum,
+      Collection_Amt_Percent: collectibleAmtSum > 0 ? ((collectedAmtSum / collectibleAmtSum) * 100).toFixed(2) : "0.00",
+      Previous_Overdue: prevOverdueSum,
+      Running_Overdue: runOverdueSum,
+      Overdue_Change: runOverdueSum - prevOverdueSum
+    };
+
+    summaryData.push(subtotal);
+  });
+
+  renderTable(summaryData);
+}
+
+function generateAreaWiseSummary(areaWiseData) {
+  let areaWiseSummary = [];
+  let divisions = new Set();
+
+  Object.keys(areaWiseData).sort().forEach(area => {
+    const plazas = areaWiseData[area];
+    
+    // Add individual plaza rows
+    plazas.forEach(plaza => {
+      areaWiseSummary.push(plaza);
+      divisions.add(plaza.Division);
+    });
+
+    // Calculate area subtotal
+    const collectibleQtySum = plazas.reduce((sum, p) => sum + toNumber(p.Collectible_Acc_Qty), 0);
+    const collectedQtySum = plazas.reduce((sum, p) => sum + toNumber(p.Collected_Acc_Qty), 0);
+    const collectibleAmtSum = plazas.reduce((sum, p) => sum + toNumber(p.Collectible_Amount), 0);
+    const collectedAmtSum = plazas.reduce((sum, p) => sum + toNumber(p.Collected_Amount), 0);
+    const prevOverdueSum = plazas.reduce((sum, p) => sum + toNumber(p.Previous_Overdue), 0);
+    const runOverdueSum = plazas.reduce((sum, p) => sum + toNumber(p.Running_Overdue), 0);
+
+    const areaSubtotal = {
+      Division: "",
+      Area: `${area} - SUBTOTAL`,
+      Plaza: "",
+      Collectible_Acc_Qty: collectibleQtySum,
+      Collected_Acc_Qty: collectedQtySum,
+      Collection_Qty_Percent: collectibleQtySum > 0 ? ((collectedQtySum / collectibleQtySum) * 100).toFixed(2) : "0.00",
+      Collectible_Amount: collectibleAmtSum,
+      Collected_Amount: collectedAmtSum,
+      Collection_Amt_Percent: collectibleAmtSum > 0 ? ((collectedAmtSum / collectibleAmtSum) * 100).toFixed(2) : "0.00",
+      Previous_Overdue: prevOverdueSum,
+      Running_Overdue: runOverdueSum,
+      Overdue_Change: runOverdueSum - prevOverdueSum
+    };
+
+    areaWiseSummary.push(areaSubtotal);
+  });
+
+  areaWiseFullData = areaWiseSummary;
+
+  // Populate division filter
+  const filterSelect = document.getElementById("divisionFilter");
+  const sortedDivisions = Array.from(divisions).sort();
+  sortedDivisions.forEach(div => {
+    const option = document.createElement("option");
+    option.value = div;
+    option.textContent = div;
+    filterSelect.appendChild(option);
+  });
+
+  filterSelect.addEventListener("change", applyDivisionFilter);
+
+  renderAreaWiseTable(areaWiseSummary);
+}
+
+function applyDivisionFilter() {
+  const selectedDivision = document.getElementById("divisionFilter").value;
+  
+  let filteredData = [];
+  
+  if (selectedDivision) {
+    // Group by area for the selected division
+    const areaGroups = {};
+    
+    areaWiseFullData.forEach(row => {
+      if (row.Division === selectedDivision && !row.Area.includes("SUBTOTAL")) {
+        const area = row.Area;
+        if (!areaGroups[area]) {
+          areaGroups[area] = [];
+        }
+        areaGroups[area].push(row);
+      }
+    });
+
+    // Add plazas and area subtotals for selected division
+    Object.keys(areaGroups).sort().forEach(area => {
+      const plazas = areaGroups[area];
+      
+      // Add plaza rows
+      plazas.forEach(plaza => {
+        filteredData.push(plaza);
+      });
+
+      // Add area subtotal
+      const collectibleQtySum = plazas.reduce((sum, p) => sum + toNumber(p.Collectible_Acc_Qty), 0);
+      const collectedQtySum = plazas.reduce((sum, p) => sum + toNumber(p.Collected_Acc_Qty), 0);
+      const collectibleAmtSum = plazas.reduce((sum, p) => sum + toNumber(p.Collectible_Amount), 0);
+      const collectedAmtSum = plazas.reduce((sum, p) => sum + toNumber(p.Collected_Amount), 0);
+      const prevOverdueSum = plazas.reduce((sum, p) => sum + toNumber(p.Previous_Overdue), 0);
+      const runOverdueSum = plazas.reduce((sum, p) => sum + toNumber(p.Running_Overdue), 0);
+
+      const areaSubtotal = {
+        Division: selectedDivision,
+        Area: `${area} - SUBTOTAL`,
+        Plaza: "",
+        Collectible_Acc_Qty: collectibleQtySum,
+        Collected_Acc_Qty: collectedQtySum,
+        Collection_Qty_Percent: collectibleQtySum > 0 ? ((collectedQtySum / collectibleQtySum) * 100).toFixed(2) : "0.00",
+        Collectible_Amount: collectibleAmtSum,
+        Collected_Amount: collectedAmtSum,
+        Collection_Amt_Percent: collectibleAmtSum > 0 ? ((collectedAmtSum / collectibleAmtSum) * 100).toFixed(2) : "0.00",
+        Previous_Overdue: prevOverdueSum,
+        Running_Overdue: runOverdueSum,
+        Overdue_Change: runOverdueSum - prevOverdueSum
+      };
+
+      filteredData.push(areaSubtotal);
+    });
+  } else {
+    filteredData = areaWiseFullData;
+  }
+
+  renderAreaWiseTable(filteredData);
+}
+
+function renderAreaWiseTable(data) {
+  const table = document.getElementById("areaWiseTable");
+  table.innerHTML = "";
+
+  if (!data.length) {
+    table.innerHTML = "<tr><td>No data detected.</td></tr>";
+    return;
+  }
+
+  const headers = Object.keys(data[0]);
+
+  let html = "<tr>" + headers.map(h => `<th>${h.replace(/_/g," ")}</th>`).join("") + "</tr>";
+
+  data.forEach(row => {
+    const isSubtotal = row.Plaza.includes("SUBTOTAL");
+    const rowClass = isSubtotal ? ' class="subtotal-row"' : '';
+    html += `<tr${rowClass}>` + headers.map(h => `<td>${row[h]}</td>`).join("") + "</tr>";
+  });
+
+  table.innerHTML = html;
+}
+
+function renderTable(data) {
+  const table = document.getElementById("summaryTable");
+  table.innerHTML = "";
+
+  if (!data.length) {
+    table.innerHTML = "<tr><td>No data detected.</td></tr>";
+    return;
+  }
+
+  const headers = Object.keys(data[0]);
+
+  let html = "<tr>" + headers.map(h => `<th>${h.replace(/_/g," ")}</th>`).join("") + "</tr>";
+
+  data.forEach(row => {
+    const isSubtotal = row.Division.includes("SUBTOTAL");
+    const rowClass = isSubtotal ? ' class="subtotal-row"' : '';
+    html += `<tr${rowClass}>` + headers.map(h => `<td>${row[h]}</td>`).join("") + "</tr>";
+  });
+
+  table.innerHTML = html;
+}
+
+function downloadExcel() {
+  if (!summaryData.length) {
+    alert("No summary to export!");
+    return;
+  }
+
+  const worksheet = XLSX.utils.json_to_sheet(summaryData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Division_Area_Summary");
+
+  XLSX.writeFile(workbook, "division_area_summary.xlsx");
+}
+</script>
+
+</body>
+</html>
