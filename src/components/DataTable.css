@@ -79,6 +79,18 @@
   padding: 16px 12px;
 }
 
+.highlight-overdue {
+  background: linear-gradient(90deg, #ffd700 0%, #ffed4e 100%) !important;
+  font-weight: 700;
+  color: #333 !important;
+  padding: 12px !important;
+}
+
+.grand-total-row .highlight-overdue {
+  background: linear-gradient(90deg, #ffa500 0%, #ffb84d 100%) !important;
+  color: white !important;
+}
+
 .text-right {
   text-align: right;
 }

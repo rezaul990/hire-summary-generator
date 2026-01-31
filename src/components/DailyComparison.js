@@ -12,6 +12,7 @@ function DailyComparison() {
   const [selectedArea, setSelectedArea] = useState('');
   const [divisions, setDivisions] = useState([]);
   const [areas, setAreas] = useState([]);
+  const [viewMode, setViewMode] = useState('detailed');
 
   const toNumber = (val) => {
     if (val === null || val === undefined || val === '') return 0;
@@ -218,7 +219,6 @@ function DailyComparison() {
     setFullComparisonData(withSubtotals);
     setComparisonData(withSubtotals);
 
-    // Extract unique divisions and areas
     const uniqueDivisions = [...new Set(comparison.map(r => r.Division))].sort();
     setDivisions(uniqueDivisions);
     setSelectedDivision('');
@@ -227,45 +227,151 @@ function DailyComparison() {
   };
 
   const filteredData = useMemo(() => {
-    if (!selectedDivision && !selectedArea) return comparisonData;
+    if (!selectedDivision && !selectedArea && viewMode === 'detailed') return comparisonData;
 
     let filtered = [];
 
-    fullComparisonData.forEach(row => {
-      if (row.isGrandTotal) return;
+    if (viewMode === 'division') {
+      // Show only division-wise totals with grand total
+      const divisionGroups = {};
+      
+      fullComparisonData.forEach(row => {
+        if (!row.isSubtotal && !row.isGrandTotal) {
+          if (!divisionGroups[row.Division]) {
+            divisionGroups[row.Division] = [];
+          }
+          divisionGroups[row.Division].push(row);
+        }
+      });
 
-      if (row.isSubtotal) {
-        const areaName = row.Area.replace(' - SUBTOTAL', '');
-        const matchingRows = fullComparisonData.filter(
-          r => !r.isSubtotal && !r.isGrandTotal && r.Area === areaName
-        );
+      Object.keys(divisionGroups).sort().forEach(division => {
+        const rows = divisionGroups[division];
+        
+        const prevQtySum = rows.reduce((sum, r) => sum + r.Previous_Collected_Qty, 0);
+        const currQtySum = rows.reduce((sum, r) => sum + r.Current_Collected_Qty, 0);
+        const dailyQtySum = rows.reduce((sum, r) => sum + r.Daily_Collected_Qty, 0);
+        const prevAmtSum = rows.reduce((sum, r) => sum + r.Previous_Collected_Amt, 0);
+        const currAmtSum = rows.reduce((sum, r) => sum + r.Current_Collected_Amt, 0);
+        const dailyAmtSum = rows.reduce((sum, r) => sum + r.Daily_Collected_Amt, 0);
+        const prevOverdueSum = rows.reduce((sum, r) => sum + r.Previous_Overdue, 0);
+        const currOverdueSum = rows.reduce((sum, r) => sum + r.Current_Overdue, 0);
+        const todaysOverdueSum = rows.reduce((sum, r) => sum + r.Todays_Overdue_Collection, 0);
 
-        const hasMatch = matchingRows.some(r => {
-          if (selectedDivision && r.Division !== selectedDivision) return false;
-          if (selectedArea && r.Area !== selectedArea) return false;
-          return true;
-        });
+        if (!selectedDivision || selectedDivision === division) {
+          filtered.push({
+            Division: division,
+            Area: '',
+            Plaza: '',
+            Previous_Collected_Qty: prevQtySum,
+            Current_Collected_Qty: currQtySum,
+            Daily_Collected_Qty: dailyQtySum,
+            Previous_Collected_Amt: prevAmtSum,
+            Current_Collected_Amt: currAmtSum,
+            Daily_Collected_Amt: dailyAmtSum,
+            Previous_Overdue: prevOverdueSum,
+            Current_Overdue: currOverdueSum,
+            Todays_Overdue_Collection: todaysOverdueSum,
+            isDivisionTotal: true,
+          });
+        }
+      });
 
-        if (hasMatch) {
+      // Add grand total
+      if (filtered.length > 0) {
+        const grandTotalRow = fullComparisonData.find(r => r.isGrandTotal);
+        if (grandTotalRow) {
+          filtered.push(grandTotalRow);
+        }
+      }
+    } else if (viewMode === 'area') {
+      // Show only area-wise totals with grand total
+      const areaGroups = {};
+      
+      fullComparisonData.forEach(row => {
+        if (!row.isSubtotal && !row.isGrandTotal) {
+          if (!areaGroups[row.Area]) {
+            areaGroups[row.Area] = [];
+          }
+          areaGroups[row.Area].push(row);
+        }
+      });
+
+      Object.keys(areaGroups).sort().forEach(area => {
+        const rows = areaGroups[area];
+        
+        const prevQtySum = rows.reduce((sum, r) => sum + r.Previous_Collected_Qty, 0);
+        const currQtySum = rows.reduce((sum, r) => sum + r.Current_Collected_Qty, 0);
+        const dailyQtySum = rows.reduce((sum, r) => sum + r.Daily_Collected_Qty, 0);
+        const prevAmtSum = rows.reduce((sum, r) => sum + r.Previous_Collected_Amt, 0);
+        const currAmtSum = rows.reduce((sum, r) => sum + r.Current_Collected_Amt, 0);
+        const dailyAmtSum = rows.reduce((sum, r) => sum + r.Daily_Collected_Amt, 0);
+        const prevOverdueSum = rows.reduce((sum, r) => sum + r.Previous_Overdue, 0);
+        const currOverdueSum = rows.reduce((sum, r) => sum + r.Current_Overdue, 0);
+        const todaysOverdueSum = rows.reduce((sum, r) => sum + r.Todays_Overdue_Collection, 0);
+
+        if (!selectedDivision || rows.some(r => r.Division === selectedDivision)) {
+          filtered.push({
+            Division: rows[0].Division,
+            Area: area,
+            Plaza: '',
+            Previous_Collected_Qty: prevQtySum,
+            Current_Collected_Qty: currQtySum,
+            Daily_Collected_Qty: dailyQtySum,
+            Previous_Collected_Amt: prevAmtSum,
+            Current_Collected_Amt: currAmtSum,
+            Daily_Collected_Amt: dailyAmtSum,
+            Previous_Overdue: prevOverdueSum,
+            Current_Overdue: currOverdueSum,
+            Todays_Overdue_Collection: todaysOverdueSum,
+            isAreaTotal: true,
+          });
+        }
+      });
+
+      // Add grand total
+      if (filtered.length > 0) {
+        const grandTotalRow = fullComparisonData.find(r => r.isGrandTotal);
+        if (grandTotalRow) {
+          filtered.push(grandTotalRow);
+        }
+      }
+    } else {
+      // Detailed view
+      fullComparisonData.forEach(row => {
+        if (row.isGrandTotal) return;
+
+        if (row.isSubtotal) {
+          const areaName = row.Area.replace(' - SUBTOTAL', '');
+          const matchingRows = fullComparisonData.filter(
+            r => !r.isSubtotal && !r.isGrandTotal && r.Area === areaName
+          );
+
+          const hasMatch = matchingRows.some(r => {
+            if (selectedDivision && r.Division !== selectedDivision) return false;
+            if (selectedArea && r.Area !== selectedArea) return false;
+            return true;
+          });
+
+          if (hasMatch) {
+            filtered.push(row);
+          }
+        } else {
+          if (selectedDivision && row.Division !== selectedDivision) return;
+          if (selectedArea && row.Area !== selectedArea) return;
           filtered.push(row);
         }
-      } else {
-        if (selectedDivision && row.Division !== selectedDivision) return;
-        if (selectedArea && row.Area !== selectedArea) return;
-        filtered.push(row);
-      }
-    });
+      });
 
-    // Add grand total
-    if (filtered.length > 0) {
-      const grandTotalRow = fullComparisonData.find(r => r.isGrandTotal);
-      if (grandTotalRow) {
-        filtered.push(grandTotalRow);
+      if (filtered.length > 0) {
+        const grandTotalRow = fullComparisonData.find(r => r.isGrandTotal);
+        if (grandTotalRow) {
+          filtered.push(grandTotalRow);
+        }
       }
     }
 
     return filtered;
-  }, [selectedDivision, selectedArea, fullComparisonData, comparisonData]);
+  }, [selectedDivision, selectedArea, fullComparisonData, comparisonData, viewMode]);
 
   const handleDivisionChange = (division) => {
     setSelectedDivision(division);
@@ -332,42 +438,82 @@ function DailyComparison() {
       </div>
 
       {comparisonData.length > 0 && (
-        <div className="filter-container">
-          <div className="filter-box">
-            <label htmlFor="divisionFilter">Filter by Division:</label>
-            <select
-              id="divisionFilter"
-              value={selectedDivision}
-              onChange={(e) => handleDivisionChange(e.target.value)}
-              className="filter-select"
-            >
-              <option value="">All Divisions</option>
-              {divisions.map(div => (
-                <option key={div} value={div}>
-                  {div}
-                </option>
-              ))}
-            </select>
+        <>
+          <div className="view-mode-container">
+            <label>View Mode:</label>
+            <div className="view-mode-buttons">
+              <button
+                className={`mode-btn ${viewMode === 'detailed' ? 'active' : ''}`}
+                onClick={() => {
+                  setViewMode('detailed');
+                  setSelectedDivision('');
+                  setSelectedArea('');
+                }}
+              >
+                Detailed View
+              </button>
+              <button
+                className={`mode-btn ${viewMode === 'division' ? 'active' : ''}`}
+                onClick={() => {
+                  setViewMode('division');
+                  setSelectedDivision('');
+                  setSelectedArea('');
+                }}
+              >
+                Division View
+              </button>
+              <button
+                className={`mode-btn ${viewMode === 'area' ? 'active' : ''}`}
+                onClick={() => {
+                  setViewMode('area');
+                  setSelectedDivision('');
+                  setSelectedArea('');
+                }}
+              >
+                Area View
+              </button>
+            </div>
           </div>
 
-          <div className="filter-box">
-            <label htmlFor="areaFilter">Filter by Area:</label>
-            <select
-              id="areaFilter"
-              value={selectedArea}
-              onChange={(e) => setSelectedArea(e.target.value)}
-              className="filter-select"
-              disabled={!selectedDivision}
-            >
-              <option value="">All Areas</option>
-              {areas.map(area => (
-                <option key={area} value={area}>
-                  {area}
-                </option>
-              ))}
-            </select>
+          <div className="filter-container">
+            <div className="filter-box">
+              <label htmlFor="divisionFilter">Filter by Division:</label>
+              <select
+                id="divisionFilter"
+                value={selectedDivision}
+                onChange={(e) => handleDivisionChange(e.target.value)}
+                className="filter-select"
+              >
+                <option value="">All Divisions</option>
+                {divisions.map(div => (
+                  <option key={div} value={div}>
+                    {div}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {viewMode === 'detailed' && (
+              <div className="filter-box">
+                <label htmlFor="areaFilter">Filter by Area:</label>
+                <select
+                  id="areaFilter"
+                  value={selectedArea}
+                  onChange={(e) => setSelectedArea(e.target.value)}
+                  className="filter-select"
+                  disabled={!selectedDivision}
+                >
+                  <option value="">All Areas</option>
+                  {areas.map(area => (
+                    <option key={area} value={area}>
+                      {area}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
-        </div>
+        </>
       )}
 
       {filteredData.length > 0 && <DataTable data={filteredData} />}

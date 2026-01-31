@@ -3,7 +3,7 @@ import './DivisionSummary.css';
 import DataTable from './DataTable';
 
 function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, selectedArea, onAreaChange, onDownload }) {
-  const [viewMode, setViewMode] = React.useState('detailed'); // 'detailed' or 'division'
+  const [viewMode, setViewMode] = React.useState('detailed'); // 'detailed', 'division', or 'area'
 
   const areas = useMemo(() => {
     if (!selectedDivision) return [];
@@ -30,6 +30,54 @@ function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, 
           }
         }
       });
+    } else if (viewMode === 'area') {
+      // Show only area-wise totals and grand total
+      const areaGroups = {};
+      
+      data.forEach(row => {
+        if (!row.isSubtotal && !row.isGrandTotal) {
+          if (!areaGroups[row.Area]) {
+            areaGroups[row.Area] = [];
+          }
+          areaGroups[row.Area].push(row);
+        }
+      });
+
+      Object.keys(areaGroups).sort().forEach(area => {
+        const rows = areaGroups[area];
+        
+        const collectibleQtySum = rows.reduce((sum, r) => sum + parseFloat(r.Collectible_Acc_Qty || 0), 0);
+        const collectedQtySum = rows.reduce((sum, r) => sum + parseFloat(r.Collected_Acc_Qty || 0), 0);
+        const collectibleAmtSum = rows.reduce((sum, r) => sum + parseFloat(r.Collectible_Amount || 0), 0);
+        const collectedAmtSum = rows.reduce((sum, r) => sum + parseFloat(r.Collected_Amount || 0), 0);
+        const prevOverdueSum = rows.reduce((sum, r) => sum + parseFloat(r.Previous_Overdue || 0), 0);
+        const runOverdueSum = rows.reduce((sum, r) => sum + parseFloat(r.Running_Overdue || 0), 0);
+
+        if (!selectedDivision || rows.some(r => r.Division === selectedDivision)) {
+          filtered.push({
+            Division: rows[0].Division,
+            Area: area,
+            Collectible_Acc_Qty: collectibleQtySum,
+            Collected_Acc_Qty: collectedQtySum,
+            Collection_Qty_Percent: collectibleQtySum > 0 ? ((collectedQtySum / collectibleQtySum) * 100).toFixed(2) : '0.00',
+            Collectible_Amount: collectibleAmtSum,
+            Collected_Amount: collectedAmtSum,
+            Collection_Amt_Percent: collectibleAmtSum > 0 ? ((collectedAmtSum / collectibleAmtSum) * 100).toFixed(2) : '0.00',
+            Previous_Overdue: prevOverdueSum,
+            Running_Overdue: runOverdueSum,
+            Overdue_Change: runOverdueSum - prevOverdueSum,
+            isAreaTotal: true,
+          });
+        }
+      });
+
+      // Add grand total
+      if (filtered.length > 0) {
+        const grandTotalRow = data.find(r => r.isGrandTotal);
+        if (grandTotalRow) {
+          filtered.push(grandTotalRow);
+        }
+      }
     } else {
       // Detailed view with areas
       if (!selectedDivision && !selectedArea) {
@@ -110,6 +158,16 @@ function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, 
           >
             Division Summary
           </button>
+          <button
+            className={`mode-btn ${viewMode === 'area' ? 'active' : ''}`}
+            onClick={() => {
+              setViewMode('area');
+              onDivisionChange('');
+              onAreaChange('');
+            }}
+          >
+            Area View
+          </button>
         </div>
       </div>
 
@@ -158,6 +216,27 @@ function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, 
             <label htmlFor="divisionFilterSummary">Filter by Division:</label>
             <select
               id="divisionFilterSummary"
+              value={selectedDivision}
+              onChange={(e) => onDivisionChange(e.target.value)}
+              className="filter-select"
+            >
+              <option value="">All Divisions</option>
+              {divisions.map(div => (
+                <option key={div} value={div}>
+                  {div}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      )}
+
+      {viewMode === 'area' && (
+        <div className="filter-container">
+          <div className="filter-box">
+            <label htmlFor="divisionFilterArea">Filter by Division:</label>
+            <select
+              id="divisionFilterArea"
               value={selectedDivision}
               onChange={(e) => onDivisionChange(e.target.value)}
               className="filter-select"

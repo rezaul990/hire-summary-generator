@@ -55,7 +55,13 @@ function DataTable({ data }) {
           {sortedData.map((row, idx) => (
             <tr key={idx} className={row.isGrandTotal ? 'grand-total-row' : row.isSubtotal ? 'subtotal-row' : ''}>
               {columns.map(col => (
-                <td key={col} className={col.includes('Percent') ? 'text-right' : ''}>
+                <td 
+                  key={col} 
+                  className={`
+                    ${col.includes('Percent') ? 'text-right' : ''} 
+                    ${col === 'Todays_Overdue_Collection' ? 'highlight-overdue' : ''}
+                  `}
+                >
                   {row[col]}
                 </td>
               ))}
