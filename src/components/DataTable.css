@@ -91,6 +91,30 @@
   color: white !important;
 }
 
+.overdue-change-positive {
+  background: linear-gradient(90deg, #ff6b6b 0%, #ff8787 100%) !important;
+  font-weight: 700;
+  color: white !important;
+  padding: 12px !important;
+}
+
+.overdue-change-negative {
+  background: linear-gradient(90deg, #51cf66 0%, #69db7c 100%) !important;
+  font-weight: 700;
+  color: white !important;
+  padding: 12px !important;
+}
+
+.grand-total-row .overdue-change-positive {
+  background: linear-gradient(90deg, #ff5252 0%, #ff6e6e 100%) !important;
+  color: white !important;
+}
+
+.grand-total-row .overdue-change-negative {
+  background: linear-gradient(90deg, #2f9e44 0%, #40c057 100%) !important;
+  color: white !important;
+}
+
 .text-right {
   text-align: right;
 }

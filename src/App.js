@@ -5,6 +5,7 @@ import FileUpload from './components/FileUpload';
 import DivisionSummary from './components/DivisionSummary';
 import AreaWiseSummary from './components/AreaWiseSummary';
 import DailyComparison from './components/DailyComparison';
+import OverdueStatistics from './components/OverdueStatistics';
 
 function App() {
   const [divisionData, setDivisionData] = useState([]);
@@ -13,6 +14,7 @@ function App() {
   const [selectedDivision, setSelectedDivision] = useState('');
   const [selectedArea, setSelectedArea] = useState('');
   const [loading, setLoading] = useState(false);
+  const statisticsRef = React.useRef(null);
 
   const toNumber = (val) => {
     if (val === null || val === undefined || val === '') return 0;
@@ -348,12 +350,23 @@ function App() {
     XLSX.writeFile(workbook, filename);
   };
 
+  const scrollToStatistics = () => {
+    if (statisticsRef.current) {
+      statisticsRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="app">
       <div className="container">
         <header className="header">
           <h1>📊 Walton Division & Area Wise Summary</h1>
           <p>Upload your Excel file to generate summaries</p>
+          {divisionData.length > 0 && (
+            <button className="go-to-stats-btn" onClick={scrollToStatistics}>
+              ⬇ Go to Statistics
+            </button>
+          )}
         </header>
 
         <FileUpload onFileUpload={handleFile} loading={loading} />
@@ -377,6 +390,9 @@ function App() {
               onDownload={() => downloadExcel(areaWiseData, 'area_wise_summary.xlsx')}
             />
             <DailyComparison />
+            <div ref={statisticsRef}>
+              <OverdueStatistics areaWiseData={areaWiseData} divisionData={divisionData} />
+            </div>
           </>
         )}
       </div>

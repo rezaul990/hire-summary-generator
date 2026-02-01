@@ -54,17 +54,24 @@ function DataTable({ data }) {
         <tbody>
           {sortedData.map((row, idx) => (
             <tr key={idx} className={row.isGrandTotal ? 'grand-total-row' : row.isSubtotal ? 'subtotal-row' : ''}>
-              {columns.map(col => (
-                <td 
-                  key={col} 
-                  className={`
-                    ${col.includes('Percent') ? 'text-right' : ''} 
-                    ${col === 'Todays_Overdue_Collection' ? 'highlight-overdue' : ''}
-                  `}
-                >
-                  {row[col]}
-                </td>
-              ))}
+              {columns.map(col => {
+                let cellClassName = '';
+                
+                if (col.includes('Percent')) {
+                  cellClassName = 'text-right';
+                } else if (col === 'Todays_Overdue_Collection') {
+                  cellClassName = 'highlight-overdue';
+                } else if (col === 'Overdue_Change') {
+                  const value = parseFloat(row[col]);
+                  cellClassName = value > 0 ? 'overdue-change-positive' : 'overdue-change-negative';
+                }
+                
+                return (
+                  <td key={col} className={cellClassName}>
+                    {row[col]}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
