@@ -1,11 +1,65 @@
 .app {
   min-height: 100vh;
   padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
   max-width: 1400px;
   margin: 0 auto;
+  flex: 1;
+  width: 100%;
+}
+
+.credit-top {
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+  font-size: 1.3rem;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  border: 2px solid #ffd700;
+}
+
+.credit-top p {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.credit-top strong {
+  font-weight: 800;
+  color: #ffd700;
+  font-size: 1.4rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.credit-bottom {
+  text-align: center;
+  color: white;
+  margin-top: 50px;
+  padding: 30px 30px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+  font-size: 1.3rem;
+  border: 2px solid #ffd700;
+}
+
+.credit-bottom p {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.credit-bottom strong {
+  font-weight: 800;
+  color: #ffd700;
+  font-size: 1.4rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .header {

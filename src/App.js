@@ -358,6 +358,9 @@ function App() {
 
   return (
     <div className="app">
+      <div className="credit-top">
+        <p>Developer: <strong>Md. Rezaul Karim RCM</strong></p>
+      </div>
       <div className="container">
         <header className="header">
           <h1>📊 Walton Division & Area Wise Summary</h1>
@@ -395,6 +398,9 @@ function App() {
             </div>
           </>
         )}
+      </div>
+      <div className="credit-bottom">
+        <p>Developer: <strong>Md. Rezaul Karim RCM</strong></p>
       </div>
     </div>
   );
