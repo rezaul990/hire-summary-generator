@@ -6,6 +6,7 @@ import DivisionSummary from './components/DivisionSummary';
 import AreaWiseSummary from './components/AreaWiseSummary';
 import DailyComparison from './components/DailyComparison';
 import OverdueStatistics from './components/OverdueStatistics';
+import AnalyticsSection from './components/AnalyticsSection';
 
 function App() {
   const [divisionData, setDivisionData] = useState([]);
@@ -396,6 +397,7 @@ function App() {
             <div ref={statisticsRef}>
               <OverdueStatistics areaWiseData={areaWiseData} divisionData={divisionData} />
             </div>
+            <AnalyticsSection areaWiseData={areaWiseData} />
           </>
         )}
       </div>

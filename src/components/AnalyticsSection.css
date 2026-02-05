@@ -1,0 +1,151 @@
+.analytics-section {
+  margin-top: 40px;
+  padding: 30px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.analytics-container h3 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.analytics-card {
+  background: white;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.analytics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  user-select: none;
+}
+
+.analytics-header:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3a8f 100%);
+}
+
+.analytics-header h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.toggle-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.analytics-content {
+  padding: 20px;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.analytics-table {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+.analytics-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.analytics-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.analytics-table th {
+  padding: 15px 12px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #667eea;
+}
+
+.analytics-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e8e8e8;
+  color: #333;
+}
+
+.analytics-table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.analytics-table tbody tr:hover {
+  background: #f8f9ff;
+}
+
+.analytics-table tbody tr:nth-child(even) {
+  background: #f5f7fa;
+}
+
+.analytics-table .text-right {
+  text-align: right;
+  font-weight: 600;
+}
+
+.analytics-table .highlight-red {
+  color: #ff6b6b;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .analytics-section {
+    padding: 20px;
+    margin-top: 30px;
+  }
+
+  .analytics-container h3 {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+  }
+
+  .analytics-header {
+    padding: 15px;
+  }
+
+  .analytics-header h4 {
+    font-size: 0.95rem;
+  }
+
+  .analytics-content {
+    padding: 15px;
+  }
+
+  .analytics-table {
+    font-size: 0.8rem;
+  }
+
+  .analytics-table th,
+  .analytics-table td {
+    padding: 10px 8px;
+  }
+}
