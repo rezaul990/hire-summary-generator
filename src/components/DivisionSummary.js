@@ -30,6 +30,33 @@ function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, 
           }
         }
       });
+
+      // Recalculate grand total for filtered data
+      if (filtered.length > 0 && (selectedDivision || selectedArea)) {
+        const nonGrandTotalRows = filtered.filter(r => !r.isGrandTotal);
+        const collectibleQtySum = nonGrandTotalRows.reduce((sum, r) => sum + parseFloat(r.Collectible_Acc_Qty || 0), 0);
+        const collectedQtySum = nonGrandTotalRows.reduce((sum, r) => sum + parseFloat(r.Collected_Acc_Qty || 0), 0);
+        const collectibleAmtSum = nonGrandTotalRows.reduce((sum, r) => sum + parseFloat(r.Collectible_Amount || 0), 0);
+        const collectedAmtSum = nonGrandTotalRows.reduce((sum, r) => sum + parseFloat(r.Collected_Amount || 0), 0);
+        const prevOverdueSum = nonGrandTotalRows.reduce((sum, r) => sum + parseFloat(r.Previous_Overdue || 0), 0);
+        const runOverdueSum = nonGrandTotalRows.reduce((sum, r) => sum + parseFloat(r.Running_Overdue || 0), 0);
+
+        filtered = filtered.filter(r => !r.isGrandTotal);
+        filtered.push({
+          Division: '',
+          Area: 'GRAND TOTAL',
+          Collectible_Acc_Qty: collectibleQtySum,
+          Collected_Acc_Qty: collectedQtySum,
+          Collection_Qty_Percent: collectibleQtySum > 0 ? ((collectedQtySum / collectibleQtySum) * 100).toFixed(2) : '0.00',
+          Collectible_Amount: collectibleAmtSum,
+          Collected_Amount: collectedAmtSum,
+          Collection_Amt_Percent: collectibleAmtSum > 0 ? ((collectedAmtSum / collectibleAmtSum) * 100).toFixed(2) : '0.00',
+          Previous_Overdue: prevOverdueSum,
+          Running_Overdue: runOverdueSum,
+          Overdue_Change: runOverdueSum - prevOverdueSum,
+          isGrandTotal: true,
+        });
+      }
     } else if (viewMode === 'area') {
       // Show only area-wise totals and grand total
       const areaGroups = {};
@@ -71,12 +98,29 @@ function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, 
         }
       });
 
-      // Add grand total
+      // Recalculate grand total for filtered data
       if (filtered.length > 0) {
-        const grandTotalRow = data.find(r => r.isGrandTotal);
-        if (grandTotalRow) {
-          filtered.push(grandTotalRow);
-        }
+        const collectibleQtySum = filtered.reduce((sum, r) => sum + parseFloat(r.Collectible_Acc_Qty || 0), 0);
+        const collectedQtySum = filtered.reduce((sum, r) => sum + parseFloat(r.Collected_Acc_Qty || 0), 0);
+        const collectibleAmtSum = filtered.reduce((sum, r) => sum + parseFloat(r.Collectible_Amount || 0), 0);
+        const collectedAmtSum = filtered.reduce((sum, r) => sum + parseFloat(r.Collected_Amount || 0), 0);
+        const prevOverdueSum = filtered.reduce((sum, r) => sum + parseFloat(r.Previous_Overdue || 0), 0);
+        const runOverdueSum = filtered.reduce((sum, r) => sum + parseFloat(r.Running_Overdue || 0), 0);
+
+        filtered.push({
+          Division: '',
+          Area: 'GRAND TOTAL',
+          Collectible_Acc_Qty: collectibleQtySum,
+          Collected_Acc_Qty: collectedQtySum,
+          Collection_Qty_Percent: collectibleQtySum > 0 ? ((collectedQtySum / collectibleQtySum) * 100).toFixed(2) : '0.00',
+          Collectible_Amount: collectibleAmtSum,
+          Collected_Amount: collectedAmtSum,
+          Collection_Amt_Percent: collectibleAmtSum > 0 ? ((collectedAmtSum / collectibleAmtSum) * 100).toFixed(2) : '0.00',
+          Previous_Overdue: prevOverdueSum,
+          Running_Overdue: runOverdueSum,
+          Overdue_Change: runOverdueSum - prevOverdueSum,
+          isGrandTotal: true,
+        });
       }
     } else {
       // Detailed view with areas
@@ -108,12 +152,30 @@ function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, 
           }
         });
 
-        // Add grand total
+        // Recalculate grand total for filtered data
         if (filtered.length > 0) {
-          const grandTotalRow = data.find(r => r.isGrandTotal);
-          if (grandTotalRow) {
-            filtered.push(grandTotalRow);
-          }
+          const nonSubtotalRows = filtered.filter(r => !r.isSubtotal);
+          const collectibleQtySum = nonSubtotalRows.reduce((sum, r) => sum + parseFloat(r.Collectible_Acc_Qty || 0), 0);
+          const collectedQtySum = nonSubtotalRows.reduce((sum, r) => sum + parseFloat(r.Collected_Acc_Qty || 0), 0);
+          const collectibleAmtSum = nonSubtotalRows.reduce((sum, r) => sum + parseFloat(r.Collectible_Amount || 0), 0);
+          const collectedAmtSum = nonSubtotalRows.reduce((sum, r) => sum + parseFloat(r.Collected_Amount || 0), 0);
+          const prevOverdueSum = nonSubtotalRows.reduce((sum, r) => sum + parseFloat(r.Previous_Overdue || 0), 0);
+          const runOverdueSum = nonSubtotalRows.reduce((sum, r) => sum + parseFloat(r.Running_Overdue || 0), 0);
+
+          filtered.push({
+            Division: '',
+            Area: 'GRAND TOTAL',
+            Collectible_Acc_Qty: collectibleQtySum,
+            Collected_Acc_Qty: collectedQtySum,
+            Collection_Qty_Percent: collectibleQtySum > 0 ? ((collectedQtySum / collectibleQtySum) * 100).toFixed(2) : '0.00',
+            Collectible_Amount: collectibleAmtSum,
+            Collected_Amount: collectedAmtSum,
+            Collection_Amt_Percent: collectibleAmtSum > 0 ? ((collectedAmtSum / collectibleAmtSum) * 100).toFixed(2) : '0.00',
+            Previous_Overdue: prevOverdueSum,
+            Running_Overdue: runOverdueSum,
+            Overdue_Change: runOverdueSum - prevOverdueSum,
+            isGrandTotal: true,
+          });
         }
       }
     }

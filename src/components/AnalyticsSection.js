@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import * as XLSX from 'xlsx';
 import './AnalyticsSection.css';
 
 function AnalyticsSection({ areaWiseData }) {
@@ -102,6 +103,67 @@ function AnalyticsSection({ areaWiseData }) {
     }));
   };
 
+  const handleDownloadExcel = () => {
+    const workbook = XLSX.utils.book_new();
+
+    // Sheet 1: 20 Lowest Collection Qty % - Plazas
+    const lowestQtyPlazasData = analytics.lowestQtyPlazas.map(item => ({
+      'Plaza Name': item.plaza,
+      'Area': item.area,
+      'Division': item.division,
+      'Collection Qty %': item.collectionQtyPercent.toFixed(2) + '%',
+    }));
+    const ws1 = XLSX.utils.json_to_sheet(lowestQtyPlazasData);
+    XLSX.utils.book_append_sheet(workbook, ws1, 'Lowest Qty % Plazas');
+
+    // Sheet 2: 10 Lowest Collection Qty % - Areas
+    const lowestQtyAreasData = analytics.lowestQtyAreas.map(item => ({
+      'Area Name': item.area,
+      'Collection Qty %': item.collectionQtyPercent.toFixed(2) + '%',
+    }));
+    const ws2 = XLSX.utils.json_to_sheet(lowestQtyAreasData);
+    XLSX.utils.book_append_sheet(workbook, ws2, 'Lowest Qty % Areas');
+
+    // Sheet 3: 20 Lowest Collection Amt % - Plazas
+    const lowestAmtPlazasData = analytics.lowestAmtPlazas.map(item => ({
+      'Plaza Name': item.plaza,
+      'Area': item.area,
+      'Division': item.division,
+      'Collection Amt %': item.collectionAmtPercent.toFixed(2) + '%',
+    }));
+    const ws3 = XLSX.utils.json_to_sheet(lowestAmtPlazasData);
+    XLSX.utils.book_append_sheet(workbook, ws3, 'Lowest Amt % Plazas');
+
+    // Sheet 4: 10 Lowest Collection Amt % - Areas
+    const lowestAmtAreasData = analytics.lowestAmtAreas.map(item => ({
+      'Area Name': item.area,
+      'Collection Amt %': item.collectionAmtPercent.toFixed(2) + '%',
+    }));
+    const ws4 = XLSX.utils.json_to_sheet(lowestAmtAreasData);
+    XLSX.utils.book_append_sheet(workbook, ws4, 'Lowest Amt % Areas');
+
+    // Sheet 5: 20 Highest Overdue Change - Plazas
+    const highestOverduePlazasData = analytics.highestOverduePlazas.map(item => ({
+      'Plaza Name': item.plaza,
+      'Area': item.area,
+      'Division': item.division,
+      'Overdue Change': item.overdueChange.toFixed(2),
+    }));
+    const ws5 = XLSX.utils.json_to_sheet(highestOverduePlazasData);
+    XLSX.utils.book_append_sheet(workbook, ws5, 'Highest Overdue Plazas');
+
+    // Sheet 6: 10 Highest Overdue Change - Areas
+    const highestOverdueAreasData = analytics.highestOverdueAreas.map(item => ({
+      'Area Name': item.area,
+      'Overdue Change': item.overdueChange.toFixed(2),
+    }));
+    const ws6 = XLSX.utils.json_to_sheet(highestOverdueAreasData);
+    XLSX.utils.book_append_sheet(workbook, ws6, 'Highest Overdue Areas');
+
+    // Download the file
+    XLSX.writeFile(workbook, 'performance_analytics.xlsx');
+  };
+
   const renderTable = (data, columns) => (
     <div className="analytics-table">
       <table>
@@ -130,7 +192,12 @@ function AnalyticsSection({ areaWiseData }) {
   return (
     <section className="analytics-section">
       <div className="analytics-container">
-        <h3>📈 Performance Analytics</h3>
+        <div className="analytics-title-row">
+          <h3>📈 Performance Analytics</h3>
+          <button className="download-analytics-btn" onClick={handleDownloadExcel}>
+            ⬇ Download Excel
+          </button>
+        </div>
 
         {/* Lowest Collection Qty Percentage */}
         <div className="analytics-card">
