@@ -3,7 +3,7 @@ import './DivisionSummary.css';
 import DataTable from './DataTable';
 
 function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, selectedArea, onAreaChange, onDownload }) {
-  const [viewMode, setViewMode] = React.useState('detailed'); // 'detailed', 'division', or 'area'
+  const [viewMode, setViewMode] = React.useState('division'); // Start with 'division' view
 
   const areas = useMemo(() => {
     if (!selectedDivision) return [];

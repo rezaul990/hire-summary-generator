@@ -5,6 +5,7 @@ import DataTable from './DataTable';
 
 function AreaWiseSummary({ data, divisions, selectedDivision, onDivisionChange, onDownload }) {
   const [selectedArea, setSelectedArea] = React.useState('');
+  const [isExpanded, setIsExpanded] = React.useState(false); // Initially collapsed
 
   const areas = useMemo(() => {
     if (!selectedDivision) return [];
@@ -96,51 +97,67 @@ function AreaWiseSummary({ data, divisions, selectedDivision, onDivisionChange, 
 
   return (
     <section className="summary-section area-wise-section">
-      <div className="section-header">
-        <h2>📍 Area Wise Summary with Plaza Details</h2>
-        <button className="download-btn" onClick={handleDownload}>
+      <div className="section-header collapsible-header" onClick={() => setIsExpanded(!isExpanded)}>
+        <div className="header-title">
+          <span className="collapse-icon">{isExpanded ? '▼' : '▶'}</span>
+          <div className="header-text">
+            <h2>📍 Area Wise Summary with Plaza Details</h2>
+            {!isExpanded && <p className="expand-instruction">Click to expand and view plaza details</p>}
+          </div>
+        </div>
+        <button 
+          className="download-btn" 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDownload();
+          }}
+        >
           ⬇ Download Excel
         </button>
       </div>
 
-      <div className="filter-container">
-        <div className="filter-box">
-          <label htmlFor="divisionFilter">Filter by Division:</label>
-          <select
-            id="divisionFilter"
-            value={selectedDivision}
-            onChange={(e) => handleDivisionChange(e.target.value)}
-            className="filter-select"
-          >
-            <option value="">All Divisions</option>
-            {divisions.map(div => (
-              <option key={div} value={div}>
-                {div}
-              </option>
-            ))}
-          </select>
-        </div>
+      {isExpanded && (
+        <div className="collapsible-content">
+          <div className="filter-container">
+            <div className="filter-box">
+              <label htmlFor="divisionFilter">Filter by Division:</label>
+              <select
+                id="divisionFilter"
+                value={selectedDivision}
+                onChange={(e) => handleDivisionChange(e.target.value)}
+                className="filter-select"
+              >
+                <option value="">All Divisions</option>
+                {divisions.map(div => (
+                  <option key={div} value={div}>
+                    {div}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <div className="filter-box">
-          <label htmlFor="areaFilter">Filter by Area:</label>
-          <select
-            id="areaFilter"
-            value={selectedArea}
-            onChange={(e) => setSelectedArea(e.target.value)}
-            className="filter-select"
-            disabled={!selectedDivision}
-          >
-            <option value="">All Areas</option>
-            {areas.map(area => (
-              <option key={area} value={area}>
-                {area}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+            <div className="filter-box">
+              <label htmlFor="areaFilter">Filter by Area:</label>
+              <select
+                id="areaFilter"
+                value={selectedArea}
+                onChange={(e) => setSelectedArea(e.target.value)}
+                className="filter-select"
+                disabled={!selectedDivision}
+              >
+                <option value="">All Areas</option>
+                {areas.map(area => (
+                  <option key={area} value={area}>
+                    {area}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-      <DataTable data={filteredData} />
+          <DataTable data={filteredData} />
+        </div>
+      )}
     </section>
   );
 }

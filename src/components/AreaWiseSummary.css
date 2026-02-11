@@ -2,6 +2,75 @@
   margin-top: 40px;
 }
 
+.collapsible-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.3s ease;
+}
+
+.collapsible-header:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #6a3a8f 100%);
+}
+
+.header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.header-text h2 {
+  margin: 0;
+}
+
+.expand-instruction {
+  margin: 0;
+  font-size: 1rem;
+  color: #ffd700;
+  font-weight: 600;
+  font-style: italic;
+  animation: pulse 2s ease-in-out infinite;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.3px;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.collapse-icon {
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+  color: white;
+  font-weight: bold;
+}
+
+.collapsible-content {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .filter-container {
   display: flex;
   gap: 20px;
@@ -60,5 +129,19 @@
 
   .filter-box {
     min-width: unset;
+  }
+
+  .header-title {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .collapse-icon {
+    font-size: 1.2rem;
+    margin-top: 5px;
+  }
+
+  .expand-instruction {
+    font-size: 0.9rem;
   }
 }
