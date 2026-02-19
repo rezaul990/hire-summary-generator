@@ -373,6 +373,11 @@ function App() {
           )}
         </header>
 
+        <div className="instruction-box">
+          <h3>📋 Instructions / নির্দেশনা</h3>
+          <p>POS এ লগিন করে - Sales &gt; Reports &gt; Hire Acc Target & Ach &gt; Collection Tr. & Achv. Summary Report ডাউনলোড করে আপলোড করুন</p>
+        </div>
+
         <FileUpload onFileUpload={handleFile} loading={loading} />
 
         {divisionData.length > 0 && (
