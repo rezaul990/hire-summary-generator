@@ -17,14 +17,22 @@ function AnalyticsSection({ areaWiseData }) {
       };
     }
 
+    // List of plazas to exclude
+    const excludedPlazas = [
+      'Walton Plaza-Computer City, Chittagong',
+      'Walton Plaza-Multiplan Center, Dhaka',
+      'Walton Plaza-Jalil Tower, Khulna',
+      'Walton Plaza-IDB'
+    ];
+
     const plazas = [];
     const areas = new Map();
 
-    // Collect plaza data
+    // Collect plaza data (excluding specific plazas)
     areaWiseData.forEach(row => {
       if (row.isSubtotal || row.isGrandTotal) return;
 
-      if (row.Plaza) {
+      if (row.Plaza && !excludedPlazas.includes(row.Plaza)) {
         plazas.push({
           division: row.Division,
           area: row.Area,
