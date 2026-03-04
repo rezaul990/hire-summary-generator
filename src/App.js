@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
 import './App.css';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import Sidebar from './components/Sidebar';
 import FileUpload from './components/FileUpload';
 import DivisionSummary from './components/DivisionSummary';
 import AreaWiseSummary from './components/AreaWiseSummary';
@@ -359,56 +362,51 @@ function App() {
 
   return (
     <div className="app">
-      <div className="credit-top">
-        <p>Developer: <strong>Md. Rezaul Karim RCM</strong></p>
-      </div>
-      <div className="container">
-        <header className="header">
-          <h1>📊 Walton Division & Area Wise Summary</h1>
-          <p>Upload your Excel file to generate summaries</p>
-          {divisionData.length > 0 && (
-            <button className="go-to-stats-btn" onClick={scrollToStatistics}>
-              ⬇ Go to Statistics
-            </button>
-          )}
-        </header>
+      <Header 
+        onScrollToStats={scrollToStatistics}
+        showStatsButton={divisionData.length > 0}
+      />
+      
+      <div className="app-wrapper">
+        <div className="container">
+          <div className="instruction-box">
+            <h3>📋 Instructions / নির্দেশনা</h3>
+            <p>POS এ লগিন করে - Sales &gt; Reports &gt; Hire Acc Target & Ach &gt; Collection Tr. & Achv. Summary Report ডাউনলোড করে আপলোড করুন</p>
+          </div>
 
-        <div className="instruction-box">
-          <h3>📋 Instructions / নির্দেশনা</h3>
-          <p>POS এ লগিন করে - Sales &gt; Reports &gt; Hire Acc Target & Ach &gt; Collection Tr. & Achv. Summary Report ডাউনলোড করে আপলোড করুন</p>
+          <FileUpload onFileUpload={handleFile} loading={loading} />
+
+          {divisionData.length > 0 && (
+            <>
+              <DivisionSummary 
+                data={divisionData} 
+                divisions={divisions}
+                selectedDivision={selectedDivision}
+                onDivisionChange={setSelectedDivision}
+                selectedArea={selectedArea}
+                onAreaChange={setSelectedArea}
+                onDownload={() => downloadExcel(divisionData, 'division_summary.xlsx')} 
+              />
+              <AreaWiseSummary
+                data={areaWiseData}
+                divisions={divisions}
+                selectedDivision={selectedDivision}
+                onDivisionChange={setSelectedDivision}
+                onDownload={() => downloadExcel(areaWiseData, 'area_wise_summary.xlsx')}
+              />
+              <DailyComparison />
+              <div ref={statisticsRef}>
+                <OverdueStatistics areaWiseData={areaWiseData} divisionData={divisionData} />
+              </div>
+              <AnalyticsSection areaWiseData={areaWiseData} />
+            </>
+          )}
         </div>
 
-        <FileUpload onFileUpload={handleFile} loading={loading} />
+        <Sidebar />
+      </div>
 
-        {divisionData.length > 0 && (
-          <>
-            <DivisionSummary 
-              data={divisionData} 
-              divisions={divisions}
-              selectedDivision={selectedDivision}
-              onDivisionChange={setSelectedDivision}
-              selectedArea={selectedArea}
-              onAreaChange={setSelectedArea}
-              onDownload={() => downloadExcel(divisionData, 'division_summary.xlsx')} 
-            />
-            <AreaWiseSummary
-              data={areaWiseData}
-              divisions={divisions}
-              selectedDivision={selectedDivision}
-              onDivisionChange={setSelectedDivision}
-              onDownload={() => downloadExcel(areaWiseData, 'area_wise_summary.xlsx')}
-            />
-            <DailyComparison />
-            <div ref={statisticsRef}>
-              <OverdueStatistics areaWiseData={areaWiseData} divisionData={divisionData} />
-            </div>
-            <AnalyticsSection areaWiseData={areaWiseData} />
-          </>
-        )}
-      </div>
-      <div className="credit-bottom">
-        <p>Developer: <strong>Md. Rezaul Karim RCM</strong></p>
-      </div>
+      <Footer />
     </div>
   );
 }
