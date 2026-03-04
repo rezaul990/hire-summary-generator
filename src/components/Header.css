@@ -34,6 +34,40 @@
   font-size: 1.4rem;
 }
 
+.banner-contacts {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.banner-contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.banner-contact-link:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.banner-contact-icon {
+  font-size: 1.2rem;
+}
+
 .modern-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
@@ -168,6 +202,20 @@
 
   .developer-banner .heart {
     font-size: 1.1rem;
+  }
+
+  .banner-contacts {
+    gap: 15px;
+    margin-top: 8px;
+  }
+
+  .banner-contact-link {
+    font-size: 0.85rem;
+    padding: 6px 12px;
+  }
+
+  .banner-contact-icon {
+    font-size: 1rem;
   }
 
   .modern-header {
