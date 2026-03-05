@@ -27,7 +27,6 @@ function AreaWiseSummary({ data, divisions, selectedDivision, onDivisionChange, 
       await new Promise(resolve => setTimeout(resolve, 300));
 
       // Get the actual dimensions
-      const rect = tableRef.current.getBoundingClientRect();
       const scrollWidth = tableRef.current.scrollWidth;
       const scrollHeight = tableRef.current.scrollHeight;
 
