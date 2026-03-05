@@ -5,6 +5,63 @@
   margin-bottom: 40px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   animation: fadeIn 0.6s ease-out;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.screenshot-container {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1;
+}
+
+.screenshot-container.capturing {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+.screenshot-container.capturing .table-wrapper {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+.screenshot-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: none;
+}
+
+.screenshot-container.capturing .screenshot-header {
+  display: block;
+}
+
+.screenshot-title {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.screenshot-filters {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+}
+
+.filter-info {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.filter-info strong {
+  color: #ffd700;
+  font-weight: 700;
 }
 
 .section-header {
@@ -20,11 +77,20 @@
   font-size: 1.8rem;
   color: #333;
   margin: 0;
+  font-weight: 700;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.download-btn {
+.header-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.download-btn,
+.screenshot-btn {
   padding: 10px 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -32,6 +98,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.download-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
@@ -40,7 +112,19 @@
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
 }
 
-.download-btn:active {
+.screenshot-btn {
+  display: none;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.screenshot-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+}
+
+.download-btn:active,
+.screenshot-btn:active {
   transform: translateY(0);
 }
 
@@ -56,6 +140,8 @@
   font-weight: 600;
   color: #333;
   font-size: 0.95rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .view-mode-buttons {
@@ -73,6 +159,8 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .mode-btn:hover {
@@ -107,6 +195,8 @@
   font-weight: 600;
   color: #333;
   font-size: 0.95rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .filter-select {
@@ -118,6 +208,9 @@
   transition: all 0.3s ease;
   background: white;
   color: #333;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .filter-select:hover:not(:disabled) {
@@ -162,9 +255,14 @@
     font-size: 1.4rem;
   }
 
-  .download-btn {
+  .download-btn,
+  .screenshot-btn {
     width: 100%;
     text-align: center;
+  }
+
+  .header-actions {
+    width: 100%;
   }
 
   .view-mode-container {

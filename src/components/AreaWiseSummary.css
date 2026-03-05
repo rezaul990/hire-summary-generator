@@ -2,6 +2,14 @@
   margin-top: 40px;
 }
 
+.area-wise-section .section-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 30px;
+  border-radius: 12px 12px 0 0;
+  margin-bottom: 0;
+}
+
 .collapsible-header {
   cursor: pointer;
   user-select: none;
@@ -58,6 +66,108 @@
 
 .collapsible-content {
   animation: slideDown 0.3s ease;
+  padding: 25px 30px 30px;
+  background: white;
+  border-radius: 0 0 12px 12px;
+}
+
+.collapsible-content.screenshot-container {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1;
+}
+
+.collapsible-content.screenshot-container.capturing {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+  padding: 30px;
+}
+
+.collapsible-content.screenshot-container.capturing .table-wrapper {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+.collapsible-content.capturing .data-table {
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+}
+
+.collapsible-content.capturing .data-table th {
+  font-size: 1.4rem !important;
+  font-weight: 800 !important;
+  padding: 18px 15px !important;
+}
+
+.collapsible-content.capturing .data-table td {
+  font-size: 1.3rem !important;
+  font-weight: 700 !important;
+  padding: 15px !important;
+  color: #000 !important;
+}
+
+.collapsible-content.capturing .subtotal-row td {
+  font-weight: 800 !important;
+  font-size: 1.35rem !important;
+  color: #000 !important;
+}
+
+.collapsible-content.capturing .grand-total-row td {
+  font-weight: 900 !important;
+  font-size: 1.4rem !important;
+  padding: 18px 15px !important;
+}
+
+.screenshot-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: none;
+}
+
+.collapsible-content.capturing .screenshot-header {
+  display: block !important;
+}
+
+.screenshot-title {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.collapsible-content.capturing .screenshot-title {
+  font-size: 1.8rem !important;
+  font-weight: 800 !important;
+}
+
+.screenshot-filters {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.95rem;
+}
+
+.collapsible-content.capturing .screenshot-filters {
+  font-size: 1.2rem !important;
+  font-weight: 700 !important;
+}
+
+.filter-info {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.filter-info strong {
+  color: #ffd700;
+  font-weight: 700;
+}
+
+.collapsible-content.capturing .filter-info strong {
+  font-weight: 900 !important;
 }
 
 @keyframes slideDown {
@@ -91,6 +201,8 @@
   font-weight: 600;
   color: #333;
   font-size: 0.95rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .filter-select {
@@ -102,6 +214,9 @@
   transition: all 0.3s ease;
   background: white;
   color: #333;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .filter-select:hover:not(:disabled) {

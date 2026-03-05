@@ -1,9 +1,112 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
+import html2canvas from 'html2canvas';
 import './DivisionSummary.css';
 import DataTable from './DataTable';
 
 function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, selectedArea, onAreaChange, onDownload }) {
   const [viewMode, setViewMode] = React.useState('division'); // Start with 'division' view
+  const tableRef = useRef(null);
+
+  const handleScreenshot = async () => {
+    if (!tableRef.current) return;
+
+    try {
+      // Show loading indicator
+      const originalButtonText = document.querySelector('.summary-section .screenshot-btn');
+      if (originalButtonText) {
+        originalButtonText.textContent = '⏳ Capturing...';
+        originalButtonText.disabled = true;
+      }
+
+      // Add capturing class
+      tableRef.current.classList.add('capturing');
+
+      // Wait for layout to settle
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      // Get the actual dimensions
+      const rect = tableRef.current.getBoundingClientRect();
+      const scrollWidth = tableRef.current.scrollWidth;
+      const scrollHeight = tableRef.current.scrollHeight;
+
+      const canvas = await html2canvas(tableRef.current, {
+        scale: 4, // Even higher scale for maximum clarity
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0,
+        x: 0,
+        y: 0,
+        width: scrollWidth,
+        height: scrollHeight,
+        windowWidth: scrollWidth,
+        windowHeight: scrollHeight,
+        allowTaint: false,
+        foreignObjectRendering: false,
+        imageTimeout: 0,
+        removeContainer: true,
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.querySelector('.screenshot-container');
+          if (clonedElement) {
+            clonedElement.style.overflow = 'visible';
+            clonedElement.style.maxHeight = 'none';
+            clonedElement.style.height = 'auto';
+            clonedElement.style.width = scrollWidth + 'px';
+            
+            const wrapper = clonedElement.querySelector('.table-wrapper');
+            if (wrapper) {
+              wrapper.style.overflow = 'visible';
+              wrapper.style.maxHeight = 'none';
+              wrapper.style.height = 'auto';
+            }
+
+            // Ensure all text is sharp and bold
+            const allText = clonedElement.querySelectorAll('*');
+            allText.forEach(el => {
+              el.style.webkitFontSmoothing = 'antialiased';
+              el.style.mozOsxFontSmoothing = 'grayscale';
+              el.style.textRendering = 'optimizeLegibility';
+              el.style.fontWeight = 'bold';
+            });
+          }
+        }
+      });
+
+      // Remove capturing class
+      tableRef.current.classList.remove('capturing');
+
+      // Restore button
+      if (originalButtonText) {
+        originalButtonText.textContent = '📸 Screenshot';
+        originalButtonText.disabled = false;
+      }
+
+      // Convert canvas to blob with high quality
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+        const filterInfo = selectedDivision ? `-${selectedDivision}` : '';
+        link.download = `division-summary${filterInfo}-${timestamp}.png`;
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+      }, 'image/png', 1.0); // Maximum quality PNG
+    } catch (error) {
+      console.error('Screenshot failed:', error);
+      tableRef.current.classList.remove('capturing');
+      
+      // Restore button
+      const btn = document.querySelector('.summary-section .screenshot-btn');
+      if (btn) {
+        btn.textContent = '📸 Screenshot';
+        btn.disabled = false;
+      }
+      
+      alert('Failed to capture screenshot. Please try again.');
+    }
+  };
 
   const areas = useMemo(() => {
     if (!selectedDivision) return [];
@@ -192,10 +295,26 @@ function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, 
     <section className="summary-section">
       <div className="section-header">
         <h2>📊 Division & Area Wise Summary</h2>
-        <button className="download-btn" onClick={onDownload}>
-          ⬇ Download Excel
-        </button>
+        <div className="header-actions">
+          <button className="screenshot-btn" onClick={handleScreenshot} title="Take Screenshot">
+            📸 Screenshot
+          </button>
+          <button className="download-btn" onClick={onDownload}>
+            ⬇ Download Excel
+          </button>
+        </div>
       </div>
+
+      <div ref={tableRef} className="screenshot-container">
+        <div className="screenshot-header">
+          <h3 className="screenshot-title">📊 Division & Area Wise Summary</h3>
+          <div className="screenshot-filters">
+            <span className="filter-info">View: <strong>{viewMode === 'division' ? 'Division Summary' : viewMode === 'area' ? 'Area View' : 'Detailed View'}</strong></span>
+            {selectedDivision && <span className="filter-info">Division: <strong>{selectedDivision}</strong></span>}
+            {selectedArea && <span className="filter-info">Area: <strong>{selectedArea}</strong></span>}
+            <span className="filter-info">Date: <strong>{new Date().toLocaleDateString()}</strong></span>
+          </div>
+        </div>
 
       <div className="view-mode-container">
         <label>View Mode:</label>
@@ -315,6 +434,7 @@ function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, 
       )}
 
       <DataTable data={filteredData} />
+      </div>
     </section>
   );
 }

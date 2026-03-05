@@ -18,6 +18,24 @@ function DataTable({ data }) {
     setSortConfig({ key, direction });
   };
 
+  const getColumnLabel = (col) => {
+    const labels = {
+      'Division': 'Division',
+      'Area': 'Area',
+      'Plaza': 'Plaza',
+      'Collectible_Acc_Qty': 'Target Qty',
+      'Collected_Acc_Qty': 'Ach. Qty',
+      'Collection_Qty_Percent': 'Qty %',
+      'Collectible_Amount': 'Target Amt',
+      'Collected_Amount': 'Ach. Amt',
+      'Collection_Amt_Percent': 'Amt %',
+      'Previous_Overdue': 'Prev O/D',
+      'Running_Overdue': 'Curr O/D',
+      'Overdue_Change': 'Inc/Dec'
+    };
+    return labels[col] || col.replace(/_/g, ' ');
+  };
+
   const sortedData = !sortConfig.key ? data : [...data].sort((a, b) => {
     if (a.isGrandTotal) return 1;
     if (b.isGrandTotal) return -1;
@@ -39,11 +57,16 @@ function DataTable({ data }) {
   return (
     <div className="table-wrapper">
       <table className="data-table">
+        <colgroup>
+          <col style={{ width: '10%' }} />
+          <col style={{ width: '12%' }} />
+          <col style={{ width: '15%' }} />
+        </colgroup>
         <thead>
           <tr>
             {columns.map(col => (
               <th key={col} onClick={() => handleSort(col)} className="sortable">
-                {col.replace(/_/g, ' ')}
+                {getColumnLabel(col)}
                 {sortConfig.key === col && (
                   <span className="sort-indicator">{sortConfig.direction === 'asc' ? ' ↑' : ' ↓'}</span>
                 )}
