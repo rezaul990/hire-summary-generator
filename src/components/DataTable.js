@@ -58,9 +58,18 @@ function DataTable({ data }) {
     <div className="table-wrapper">
       <table className="data-table">
         <colgroup>
-          <col style={{ width: '10%' }} />
+          <col style={{ width: '8%' }} />
+          <col style={{ width: '8%' }} />
           <col style={{ width: '12%' }} />
-          <col style={{ width: '15%' }} />
+          <col style={{ width: '8%' }} />
+          <col style={{ width: '8%' }} />
+          <col style={{ width: '6%' }} />
+          <col style={{ width: '12%' }} />
+          <col style={{ width: '10%' }} />
+          <col style={{ width: '6%' }} />
+          <col style={{ width: '10%' }} />
+          <col style={{ width: '10%' }} />
+          <col style={{ width: '8%' }} />
         </colgroup>
         <thead>
           <tr>
