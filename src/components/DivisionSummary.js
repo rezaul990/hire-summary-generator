@@ -4,7 +4,7 @@ import './DivisionSummary.css';
 import DataTable from './DataTable';
 
 function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, selectedArea, onAreaChange, onDownload }) {
-  const [viewMode, setViewMode] = React.useState('detailed'); // Start with 'detailed' view to show all data
+  const [viewMode, setViewMode] = React.useState('division'); // Start with 'division' view as default
   const tableRef = useRef(null);
 
   const handleScreenshot = async () => {

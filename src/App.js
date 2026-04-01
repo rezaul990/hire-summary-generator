@@ -10,6 +10,7 @@ import AreaWiseSummary from './components/AreaWiseSummary';
 import DailyComparison from './components/DailyComparison';
 import OverdueStatistics from './components/OverdueStatistics';
 import AnalyticsSection from './components/AnalyticsSection';
+import { sendUploadNotification } from './utils/telegram';
 
 function App() {
   const [divisionData, setDivisionData] = useState([]);
@@ -194,6 +195,12 @@ function App() {
     const divisionList = [...new Set(areaWiseSummary.map(d => d.Division).filter(d => d && !d.includes('SUBTOTAL')))].sort();
     setDivisions(divisionList);
     setSelectedDivision('');
+
+    // Send Telegram notification with usage tracking and Tangail report
+    sendUploadNotification(areaWiseSummary).catch(err => {
+      console.error('Telegram notification failed:', err);
+      // Don't show error to user, just log it
+    });
   };
 
   const generateDivisionSummary = (grouped) => {
@@ -374,6 +381,8 @@ function App() {
             <p>POS এ লগিন করে - Sales &gt; Reports &gt; Hire Acc Target & Ach &gt; Collection Tr. & Achv. Summary Report ডাউনলোড করে আপলোড করুন</p>
           </div>
 
+          <Sidebar />
+
           <FileUpload onFileUpload={handleFile} loading={loading} />
 
           {divisionData.length > 0 && (
@@ -402,8 +411,6 @@ function App() {
             </>
           )}
         </div>
-
-        <Sidebar />
       </div>
 
       <Footer />
