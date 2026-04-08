@@ -10,7 +10,13 @@ function Sidebar() {
       ? 'http://localhost:5173' 
       : '/person-id-report/index.html';
     
-    window.open(url, '_blank', 'noopener,noreferrer');
+    console.log('Opening Person ID Report:', { isDevelopment, url });
+    
+    const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
+    
+    if (!newWindow) {
+      alert('Pop-up blocked! Please allow pop-ups for this site and try again.');
+    }
   };
 
   return (
