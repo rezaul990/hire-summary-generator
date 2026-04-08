@@ -15,12 +15,12 @@ function ReportView({ data, onReset }) {
         <div className="date-time">
           Generated on: {new Date().toLocaleString()}
         </div>
-        <PersonIdTopSheetTable data={{ accountDetails: data.allAccountDetails }} />
         <ActionButtons 
           data={data} 
           onReset={onReset} 
           containerRef={containerRef}
         />
+        <PersonIdTopSheetTable data={{ accountDetails: data.allAccountDetails }} />
       </div>
     </div>
   )
