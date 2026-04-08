@@ -6,6 +6,7 @@
   "author": "Your Name",
   "homepage": "./",
   "dependencies": {
+    "fs-extra": "^11.3.4",
     "html2canvas": "^1.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -13,8 +14,11 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
+    "setup": "node setup.js",
     "start": "react-scripts start",
+    "start:all": "node dev-all.js",
     "build": "react-scripts build",
+    "build:all": "node build-all.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

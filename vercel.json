@@ -1,0 +1,32 @@
+{
+  "buildCommand": "npm run build:all",
+  "outputDirectory": "build",
+  "devCommand": "npm start",
+  "installCommand": "npm run setup",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/person-id-report/(.*)",
+      "destination": "/person-id-report/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
+}
