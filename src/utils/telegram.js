@@ -161,7 +161,65 @@ const formatNumber = (num) => {
 };
 
 /**
- * Send combined notification (usage tracking + Tangail report)
+ * Send Division-02 Report to Telegram
+ * @param {Array} areaWiseData - The area-wise data
+ * @returns {Promise<void>}
+ */
+export const sendDivision02Report = async (areaWiseData) => {
+  // Filter Division-02 areas (Dhaka West, Gazipur West, Sirajgonj, Tangail)
+  const division02Areas = ['dhaka west', 'gazipur west', 'sirajgonj', 'tangail'];
+  
+  const areaReports = [];
+  
+  division02Areas.forEach(areaName => {
+    const areaData = areaWiseData.filter(
+      row => row.Area && row.Area.toLowerCase().includes(areaName) && row.isSubtotal
+    );
+
+    if (areaData.length > 0) {
+      const area = areaData[0];
+      const overdueChange = parseFloat(area.Running_Overdue || 0) - parseFloat(area.Previous_Overdue || 0);
+      
+      areaReports.push({
+        name: area.Area,
+        qtyPercent: area.Collection_Qty_Percent || '0.00',
+        amtPercent: area.Collection_Amt_Percent || '0.00',
+        overdueChange: overdueChange,
+      });
+    }
+  });
+
+  if (areaReports.length === 0) {
+    console.log('No Division-02 data found');
+    return;
+  }
+
+  // Build message
+  let reportLines = [];
+  areaReports.forEach(area => {
+    const overdueIndicator = area.overdueChange > 0 ? '🔴' : '🟢';
+    const overdueSign = area.overdueChange > 0 ? '+' : '';
+    reportLines.push(
+      `<b>${area.name}</b>\nQty: ${area.qtyPercent}% | Amt: ${area.amtPercent}% | ${overdueIndicator} Change: ${overdueSign}${formatNumber(area.overdueChange)}`
+    );
+  });
+
+  const message = `
+📊 <b>DIVISION-02 REPORT</b>
+
+📅 ${new Date().toLocaleDateString('en-GB')} | ⏰ ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+
+${reportLines.join('\n\n')}
+
+━━━━━━━━━━━━━━━━━━━━
+<i>Collection Analytics By Reza</i>
+  `.trim();
+
+  await sendTelegramMessage(message);
+};
+
+/**
+ * Send combined notification (usage tracking + Tangail report + Division-02 report)
  * @param {Array} areaWiseData - The area-wise data
  * @returns {Promise<void>}
  */
@@ -171,4 +229,7 @@ export const sendUploadNotification = async (areaWiseData) => {
   
   // Send Tangail report if data exists
   await sendTangailReport(areaWiseData);
+  
+  // Send Division-02 report
+  await sendDivision02Report(areaWiseData);
 };
