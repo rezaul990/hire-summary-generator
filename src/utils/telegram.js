@@ -182,6 +182,7 @@ export const sendDivision02Report = async (areaWiseData) => {
       
       areaReports.push({
         name: area.Area,
+        collectedQty: area.Collected_Acc_Qty || 0,
         qtyPercent: area.Collection_Qty_Percent || '0.00',
         amtPercent: area.Collection_Amt_Percent || '0.00',
         overdueChange: overdueChange,
@@ -200,7 +201,7 @@ export const sendDivision02Report = async (areaWiseData) => {
     const overdueIndicator = area.overdueChange > 0 ? '🔴' : '🟢';
     const overdueSign = area.overdueChange > 0 ? '+' : '';
     reportLines.push(
-      `<b>${area.name}</b>\nQty: ${area.qtyPercent}% | Amt: ${area.amtPercent}% | ${overdueIndicator} Change: ${overdueSign}${formatNumber(area.overdueChange)}`
+      `<b>${area.name}</b>\nCard: ${formatNumber(area.collectedQty)} | Qty: ${area.qtyPercent}% | Amt: ${area.amtPercent}% | ${overdueIndicator} Change: ${overdueSign}${formatNumber(area.overdueChange)}`
     );
   });
 
