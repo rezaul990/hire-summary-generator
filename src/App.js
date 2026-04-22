@@ -11,6 +11,7 @@ import DailyComparison from './components/DailyComparison';
 import OverdueStatistics from './components/OverdueStatistics';
 import AnalyticsSection from './components/AnalyticsSection';
 import { sendUploadNotification } from './utils/telegram';
+import { saveTodayData, saveTangailPlazaData } from './utils/supabase';
 
 function App() {
   const [divisionData, setDivisionData] = useState([]);
@@ -367,11 +368,81 @@ function App() {
     }
   };
 
+  const handleSaveYesterdayData = async () => {
+    if (areaWiseData.length === 0) {
+      alert('❌ No data available. Please upload an Excel file first.');
+      return;
+    }
+
+    // Filter Division-02 areas
+    const division02Areas = ['dhaka west', 'gazipur west', 'sirajgonj', 'tangail'];
+    const areaReports = [];
+
+    division02Areas.forEach(areaName => {
+      const areaData = areaWiseData.filter(
+        row => row.Area && row.Area.toLowerCase().includes(areaName) && row.isSubtotal
+      );
+
+      if (areaData.length > 0) {
+        const area = areaData[0];
+        areaReports.push({
+          name: area.Area.replace(' - SUBTOTAL', ''),
+          collectedQty: area.Collected_Acc_Qty || 0,
+        });
+      }
+    });
+
+    // Filter Tangail plaza data
+    const tangailPlazaData = areaWiseData.filter(
+      row => row.Area && row.Area.toLowerCase().includes('tangail') && !row.isSubtotal && !row.isGrandTotal && row.Plaza
+    );
+
+    const plazaReports = tangailPlazaData.map(plaza => ({
+      name: plaza.Plaza,
+      collectedQty: plaza.Collected_Acc_Qty || 0,
+    }));
+
+    if (areaReports.length === 0 && plazaReports.length === 0) {
+      alert('❌ No Division-02 or Tangail data found in the uploaded file.');
+      return;
+    }
+
+    let confirmMessage = '💾 Save this data as Yesterday\'s Data?\n\n';
+    
+    if (areaReports.length > 0) {
+      confirmMessage += '📊 DIVISION-02 AREAS:\n';
+      confirmMessage += areaReports.map(a => `${a.name}: ${a.collectedQty} cards`).join('\n');
+    }
+    
+    if (plazaReports.length > 0) {
+      confirmMessage += '\n\n🏪 TANGAIL PLAZAS:\n';
+      confirmMessage += plazaReports.map(p => `${p.name}: ${p.collectedQty} cards`).join('\n');
+    }
+    
+    confirmMessage += '\n\nThis will be used for comparison when you upload today\'s file.';
+
+    const confirmed = window.confirm(confirmMessage);
+
+    if (!confirmed) return;
+
+    // Save both Division-02 and Tangail data
+    const success1 = areaReports.length > 0 ? await saveTodayData(areaReports) : true;
+    const success2 = plazaReports.length > 0 ? await saveTangailPlazaData(plazaReports) : true;
+
+    if (success1 && success2) {
+      alert('✅ Yesterday\'s data saved successfully!\n\nNow upload today\'s Excel file to see the comparison in Telegram.');
+    } else {
+      alert('❌ Failed to save data. Please check your internet connection and try again.');
+    }
+  };
+
   return (
     <div className="app">
       <Header 
         onScrollToStats={scrollToStatistics}
         showStatsButton={divisionData.length > 0}
+        onSaveYesterdayData={handleSaveYesterdayData}
+        showSaveButton={areaWiseData.length > 0}
       />
       
       <div className="app-wrapper">

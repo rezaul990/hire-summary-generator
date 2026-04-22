@@ -1,7 +1,7 @@
 import React from 'react';
 import './Header.css';
 
-function Header({ onScrollToStats, showStatsButton }) {
+function Header({ onScrollToStats, showStatsButton, onSaveYesterdayData, showSaveButton }) {
   return (
     <>
       <div className="developer-banner top">
@@ -38,6 +38,11 @@ function Header({ onScrollToStats, showStatsButton }) {
               </div>
             </div>
             <div className="header-actions">
+              {showSaveButton && (
+                <button className="save-btn" onClick={onSaveYesterdayData} title="Save as Yesterday's Data">
+                  <span className="btn-icon">💾</span>
+                </button>
+              )}
               {showStatsButton && (
                 <button className="stats-btn" onClick={onScrollToStats}>
                   <span className="btn-icon">📈</span>

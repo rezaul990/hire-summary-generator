@@ -1,3 +1,5 @@
+import { saveTodayData, getYesterdayData, saveTangailPlazaData, getYesterdayTangailPlazaData } from './supabase.js';
+
 // Telegram Bot Configuration
 const TELEGRAM_BOT_TOKEN = '8628472212:AAEBDPpAmX9h_13bsRRE7ccxNtMqsp3uHu8';
 const TELEGRAM_CHAT_ID = '5831003572';
@@ -55,7 +57,7 @@ export const trackFileUpload = async () => {
 };
 
 /**
- * Send Tangail Area Report to Telegram
+ * Send Tangail Area Report to Telegram with daily card comparison
  * @param {Array} areaWiseData - The area-wise data
  * @returns {Promise<void>}
  */
@@ -110,15 +112,90 @@ export const sendTangailReport = async (areaWiseData) => {
     : '0.00';
   const overdueChange = totalRunOverdue - totalPrevOverdue;
 
-  // Format plaza details
+  // Get yesterday's Tangail card collection from Supabase
+  const yesterdayData = await getYesterdayData();
+  const tangailAreaName = 'Tangail Area';
+  const yesterdayQty = yesterdayData[tangailAreaName] || 0;
+  const todayQty = parseInt(totalCollectedQty) || 0;
+  const qtyDiff = todayQty - yesterdayQty;
+
+  // Determine comparison text
+  let cardComparisonText = '';
+  if (yesterdayQty === 0) {
+    cardComparisonText = '(First day data)';
+  } else if (qtyDiff > 0) {
+    cardComparisonText = `(↑ +${formatNumber(qtyDiff)} from yesterday)`;
+  } else if (qtyDiff < 0) {
+    cardComparisonText = `(↓ ${formatNumber(qtyDiff)} from yesterday)`;
+  } else {
+    cardComparisonText = `(→ Same as yesterday)`;
+  }
+
+  // Get yesterday's Tangail plaza data from Supabase
+  const yesterdayPlazaData = await getYesterdayTangailPlazaData();
+
+  // Separate plazas into two groups: low growth (difference < 10) and good performance (difference >= 10)
+  const lowPerformancePlazas = [];
+  const normalPlazas = [];
+
+  plazaDetails.forEach(plaza => {
+    const todayQty = parseInt(plaza.collectedQty) || 0;
+    const yesterdayQty = yesterdayPlazaData[plaza.plaza] || 0;
+    const qtyDiff = todayQty - yesterdayQty;
+    
+    // Low performance = difference from yesterday is less than 10 (including negative)
+    // Only check if yesterday data exists
+    if (yesterdayQty > 0 && qtyDiff < 10) {
+      lowPerformancePlazas.push(plaza);
+    } else {
+      normalPlazas.push(plaza);
+    }
+  });
+
+  // Format low performance plazas (difference < 10 from yesterday)
+  let lowPerformanceList = '';
+  if (lowPerformancePlazas.length > 0) {
+    lowPerformancePlazas.forEach((plaza, index) => {
+      const todayQty = parseInt(plaza.collectedQty) || 0;
+      const yesterdayQty = yesterdayPlazaData[plaza.plaza] || 0;
+      const qtyDiff = todayQty - yesterdayQty;
+      
+      let comparisonText = '';
+      if (qtyDiff > 0) {
+        comparisonText = `(↑ +${qtyDiff})`;
+      } else if (qtyDiff < 0) {
+        comparisonText = `(↓ ${qtyDiff})`;
+      } else {
+        comparisonText = `(→ Same)`;
+      }
+      
+      lowPerformanceList += `\n${index + 1}. <b>${plaza.plaza}</b> - Card: ${plaza.collectedQty} ${comparisonText}`;
+    });
+  }
+
+  // Format normal plazas (10+ cards)
   let plazaList = '';
-  plazaDetails.forEach((plaza, index) => {
-    // Determine color indicator for overdue change
+  normalPlazas.forEach((plaza, index) => {
+    const todayQty = parseInt(plaza.collectedQty) || 0;
+    const yesterdayQty = yesterdayPlazaData[plaza.plaza] || 0;
+    const qtyDiff = todayQty - yesterdayQty;
+    
+    let comparisonText = '';
+    if (yesterdayQty === 0) {
+      comparisonText = '(First day)';
+    } else if (qtyDiff > 0) {
+      comparisonText = `(↑ +${qtyDiff})`;
+    } else if (qtyDiff < 0) {
+      comparisonText = `(↓ ${qtyDiff})`;
+    } else {
+      comparisonText = `(→ Same)`;
+    }
+    
     const overdueIndicator = plaza.overdueChange > 0 ? '🔴' : '🟢';
     const overdueSign = plaza.overdueChange > 0 ? '+' : '';
     
     plazaList += `\n${index + 1}. <b>${plaza.plaza}</b>
-   Qty: ${plaza.collectedQty} (${plaza.qtyPercent}%)
+   Card: ${plaza.collectedQty} ${comparisonText} | Qty: ${plaza.qtyPercent}%
    Amt: ${formatNumber(plaza.collectedAmt)} (${plaza.amtPercent}%)
    ${overdueIndicator} O/D Change: ${overdueSign}${formatNumber(plaza.overdueChange)}`;
   });
@@ -131,6 +208,8 @@ export const sendTangailReport = async (areaWiseData) => {
 
 📊 <b>SUMMARY</b>
 ━━━━━━━━━━━━━━━━━━━━
+📇 Card Collected: ${formatNumber(totalCollectedQty)} ${cardComparisonText}
+
 🎯 Target Qty: ${formatNumber(totalCollectibleQty)}
 ✅ Achieved Qty: ${formatNumber(totalCollectedQty)} (${qtyPercent}%)
 
@@ -140,7 +219,7 @@ export const sendTangailReport = async (areaWiseData) => {
 📉 Previous O/D: ${formatNumber(totalPrevOverdue)}
 📊 Current O/D: ${formatNumber(totalRunOverdue)}
 ${overdueChange > 0 ? '🔴' : '🟢'} Change: ${formatNumber(overdueChange)}
-
+${lowPerformancePlazas.length > 0 ? `\n⚠️ <b>LOW PERFORMANCE PLAZAS (Growth Below 10 Cards)</b>\n━━━━━━━━━━━━━━━━━━━━${lowPerformanceList}\n` : ''}
 🏪 <b>PLAZA DETAILS</b>
 ━━━━━━━━━━━━━━━━━━━━${plazaList}
 
@@ -149,6 +228,8 @@ ${overdueChange > 0 ? '🔴' : '🟢'} Change: ${formatNumber(overdueChange)}
   `.trim();
 
   await sendTelegramMessage(message);
+
+  // Note: Tangail plaza data is saved manually by user via save button
 };
 
 /**
@@ -161,7 +242,7 @@ const formatNumber = (num) => {
 };
 
 /**
- * Send Division-02 Report to Telegram
+ * Send Division-02 Report to Telegram with daily comparison
  * @param {Array} areaWiseData - The area-wise data
  * @returns {Promise<void>}
  */
@@ -180,8 +261,11 @@ export const sendDivision02Report = async (areaWiseData) => {
       const area = areaData[0];
       const overdueChange = parseFloat(area.Running_Overdue || 0) - parseFloat(area.Previous_Overdue || 0);
       
+      // Clean area name by removing " - SUBTOTAL"
+      const cleanAreaName = area.Area.replace(' - SUBTOTAL', '');
+      
       areaReports.push({
-        name: area.Area,
+        name: cleanAreaName,
         collectedQty: area.Collected_Acc_Qty || 0,
         qtyPercent: area.Collection_Qty_Percent || '0.00',
         amtPercent: area.Collection_Amt_Percent || '0.00',
@@ -195,13 +279,33 @@ export const sendDivision02Report = async (areaWiseData) => {
     return;
   }
 
-  // Build message
+  // Get yesterday's data from Supabase
+  const yesterdayData = await getYesterdayData();
+
+  // Build message with daily comparison
   let reportLines = [];
   areaReports.forEach(area => {
+    const todayQty = parseInt(area.collectedQty) || 0;
+    const yesterdayQty = yesterdayData[area.name] || 0;
+    const qtyDiff = todayQty - yesterdayQty;
+    
+    // Determine comparison indicator
+    let comparisonText = '';
+    if (yesterdayQty === 0) {
+      comparisonText = '(First day data)';
+    } else if (qtyDiff > 0) {
+      comparisonText = `(↑ +${formatNumber(qtyDiff)} from yesterday)`;
+    } else if (qtyDiff < 0) {
+      comparisonText = `(↓ ${formatNumber(qtyDiff)} from yesterday)`;
+    } else {
+      comparisonText = `(→ Same as yesterday)`;
+    }
+
     const overdueIndicator = area.overdueChange > 0 ? '🔴' : '🟢';
     const overdueSign = area.overdueChange > 0 ? '+' : '';
+    
     reportLines.push(
-      `<b>${area.name}</b>\nCard: ${formatNumber(area.collectedQty)} | Qty: ${area.qtyPercent}% | Amt: ${area.amtPercent}% | ${overdueIndicator} Change: ${overdueSign}${formatNumber(area.overdueChange)}`
+      `<b>${area.name}</b>\nCard: ${formatNumber(area.collectedQty)} ${comparisonText}\nQty: ${area.qtyPercent}% | Amt: ${area.amtPercent}% | ${overdueIndicator} Change: ${overdueSign}${formatNumber(area.overdueChange)}`
     );
   });
 
@@ -217,6 +321,8 @@ ${reportLines.join('\n\n')}
   `.trim();
 
   await sendTelegramMessage(message);
+
+  // Note: Data is manually saved to Supabase by user
 };
 
 /**
