@@ -1,4 +1,4 @@
-import { saveTodayData, getYesterdayData, saveTangailPlazaData, getYesterdayTangailPlazaData } from './supabase.js';
+import { getYesterdayData, getYesterdayTangailPlazaData } from './supabase.js';
 
 // Telegram Bot Configuration
 const TELEGRAM_BOT_TOKEN = '8628472212:AAEBDPpAmX9h_13bsRRE7ccxNtMqsp3uHu8';
