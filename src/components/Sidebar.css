@@ -43,6 +43,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.tool-button-card {
+  background: none;
+  font-family: inherit;
 }
 
 .tool-card:last-child {
@@ -52,6 +59,41 @@
 .tool-card:hover {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.22);
+}
+
+.tool-card.highlighted {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border: 2px solid #fff;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.tool-card.highlighted:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.7);
+}
+
+.tool-card.highlighted .tool-name {
+  color: #764ba2;
+  font-weight: 800;
+}
+
+.tool-card.highlighted .tool-link {
+  color: #764ba2;
+  font-weight: 700;
+}
+
+.tool-card.highlighted:hover .tool-link {
+  color: #667eea;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(255, 215, 0, 0.8);
+  }
 }
 
 .tool-icon {
@@ -78,18 +120,7 @@
   font-size: 0.65rem;
   transition: all 0.2s ease;
   white-space: nowrap;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-}
-
-.tool-link:hover {
-  color: #ffd700;
-}
-
-.tool-button {
-  font-family: inherit;
+  pointer-events: none;
 }
 
 @keyframes slideInTop {

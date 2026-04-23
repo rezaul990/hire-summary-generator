@@ -25,43 +25,48 @@ function Sidebar() {
         <h3 className="sidebar-title">🛠️ More Useful Tools for RCM</h3>
         
         <div className="tools-container">
-          <div className="tool-card">
+          <a 
+            href="https://exceldatacleaner.netlify.app/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="tool-card highlighted"
+          >
             <div className="tool-icon">📊</div>
             <h4 className="tool-name">Excel Data Cleaner</h4>
-            <a 
-              href="https://exceldatacleaner.netlify.app/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="tool-link"
-            >
-              Open Tool →
-            </a>
-          </div>
+            <span className="tool-link">Open Tool →</span>
+          </a>
 
-          <div className="tool-card">
+          <a 
+            href="https://overduecalculatordev.netlify.app/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="tool-card highlighted"
+          >
             <div className="tool-icon">🧮</div>
             <h4 className="tool-name">Overdue Calculator</h4>
-            <a 
-              href="https://overduecalculatordev.netlify.app/" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="tool-link"
-            >
-              Open Tool →
-            </a>
-          </div>
+            <span className="tool-link">Open Tool →</span>
+          </a>
 
-          <div className="tool-card">
+          <button 
+            onClick={handlePersonIdReport}
+            className="tool-card highlighted tool-button-card"
+            title="Generate Person ID Reports"
+          >
             <div className="tool-icon">👤</div>
             <h4 className="tool-name">Person ID Report</h4>
-            <button 
-              onClick={handlePersonIdReport}
-              className="tool-link tool-button"
-              title="Generate Person ID Reports"
-            >
-              Open Tool →
-            </button>
-          </div>
+            <span className="tool-link">Open Tool →</span>
+          </button>
+
+          <a 
+            href="https://salessummary.netlify.app/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="tool-card highlighted"
+          >
+            <div className="tool-icon">📈</div>
+            <h4 className="tool-name">Sales Breakdown Analyze</h4>
+            <span className="tool-link">Open Tool →</span>
+          </a>
         </div>
       </div>
     </aside>
