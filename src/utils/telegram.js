@@ -124,9 +124,9 @@ export const sendTangailReport = async (areaWiseData) => {
   if (yesterdayQty === 0) {
     cardComparisonText = '(First day data)';
   } else if (qtyDiff > 0) {
-    cardComparisonText = `(↑ +${formatNumber(qtyDiff)} from yesterday)`;
+    cardComparisonText = `(↑ +${formatNumber(qtyDiff)} Today's Collected)`;
   } else if (qtyDiff < 0) {
-    cardComparisonText = `(↓ ${formatNumber(qtyDiff)} from yesterday)`;
+    cardComparisonText = `(↓ ${formatNumber(qtyDiff)} Today's Collected)`;
   } else {
     cardComparisonText = `(→ Same as yesterday)`;
   }
@@ -204,7 +204,7 @@ export const sendTangailReport = async (areaWiseData) => {
 🏢 <b>TANGAIL AREA REPORT</b>
 
 📅 Date: ${new Date().toLocaleDateString('en-GB')}
-⏰ Time: ${new Date().toLocaleTimeString('en-GB')}
+⏰ Time: ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
 
 📊 <b>SUMMARY</b>
 ━━━━━━━━━━━━━━━━━━━━
@@ -294,9 +294,9 @@ export const sendDivision02Report = async (areaWiseData) => {
     if (yesterdayQty === 0) {
       comparisonText = '(First day data)';
     } else if (qtyDiff > 0) {
-      comparisonText = `(↑ +${formatNumber(qtyDiff)} from yesterday)`;
+      comparisonText = `(↑ +${formatNumber(qtyDiff)} Today's Collected)`;
     } else if (qtyDiff < 0) {
-      comparisonText = `(↓ ${formatNumber(qtyDiff)} from yesterday)`;
+      comparisonText = `(↓ ${formatNumber(qtyDiff)} Today's Collected)`;
     } else {
       comparisonText = `(→ Same as yesterday)`;
     }
@@ -312,7 +312,7 @@ export const sendDivision02Report = async (areaWiseData) => {
   const message = `
 📊 <b>DIVISION-02 REPORT</b>
 
-📅 ${new Date().toLocaleDateString('en-GB')} | ⏰ ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+📅 ${new Date().toLocaleDateString('en-GB')} | ⏰ ${new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true })}
 
 ${reportLines.join('\n\n')}
 
