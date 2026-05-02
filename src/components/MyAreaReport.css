@@ -15,137 +15,98 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.area-summary-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin-top: 20px;
-}
-
-.summary-card {
-  background: rgba(255, 255, 255, 0.95);
+.my-area-table-container {
+  background: white;
   border-radius: 12px;
-  padding: 20px;
-  text-align: center;
+  overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
 }
 
-.summary-card:hover {
-  transform: translateY(-5px);
-}
-
-.card-label {
-  font-size: 0.85rem;
-  color: #666;
-  font-weight: 600;
-  margin-bottom: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.card-value {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #333;
-}
-
-.card-value.negative {
-  color: #e53e3e;
-}
-
-.card-value.positive {
-  color: #38a169;
-}
-
-.qty-badge, .amt-badge {
-  display: inline-block;
-  padding: 5px 12px;
-  border-radius: 20px;
+.my-area-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 0.9rem;
-  font-weight: 600;
-  margin: 0 5px;
 }
 
-.qty-badge {
-  background: #e6f7ff;
-  color: #0066cc;
-}
-
-.amt-badge {
-  background: #f0f9ff;
-  color: #0284c7;
-}
-
-.plaza-list {
-  margin-top: 30px;
-}
-
-.plaza-list h3 {
+.my-area-table thead {
+  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
   color: white;
-  margin: 0 0 20px 0;
-  font-size: 1.3rem;
-  font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.plaza-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 15px;
-}
-
-.plaza-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
-  padding: 18px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
-}
-
-.plaza-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
-
-.plaza-name {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #333;
-  margin-bottom: 12px;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #e0e0e0;
-}
-
-.plaza-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 0.9rem;
-}
-
-.stat-label {
-  color: #666;
+.my-area-table thead th {
+  padding: 12px 10px;
+  text-align: center;
   font-weight: 600;
+  font-size: 0.85rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
 }
 
-.stat-value {
-  color: #333;
+.my-area-table thead th:last-child {
+  border-right: none;
+}
+
+.my-area-table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+  transition: background-color 0.2s ease;
+}
+
+.my-area-table tbody tr:hover {
+  background-color: #f7fafc;
+}
+
+.my-area-table tbody td {
+  padding: 10px;
+  text-align: center;
+  color: #2d3748;
+  font-size: 0.85rem;
+}
+
+.my-area-table tbody td:first-child,
+.my-area-table tbody td:nth-child(2) {
+  text-align: left;
+  font-weight: 500;
+}
+
+.plaza-name-cell {
+  text-align: left !important;
+  font-weight: 500;
+  color: #2c5282;
+}
+
+.number-cell {
+  text-align: center;
+  font-weight: 500;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.negative-change {
+  color: #e53e3e;
   font-weight: 700;
 }
 
-.stat-value.negative {
-  color: #e53e3e;
+.positive-change {
+  color: #38a169;
+  font-weight: 700;
 }
 
-.stat-value.positive {
-  color: #38a169;
+.subtotal-row {
+  background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+  font-weight: 700;
+  border-top: 2px solid #4a5568;
+  border-bottom: 2px solid #4a5568;
+}
+
+.subtotal-row td {
+  padding: 12px 10px;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.subtotal-label {
+  text-align: left !important;
+  color: #2c5282;
+  font-size: 0.9rem;
 }
 
 .no-data-message {
@@ -173,6 +134,22 @@
   }
 }
 
+@media (max-width: 1200px) {
+  .my-area-table {
+    font-size: 0.8rem;
+  }
+
+  .my-area-table thead th {
+    padding: 10px 8px;
+    font-size: 0.75rem;
+  }
+
+  .my-area-table tbody td {
+    padding: 8px 6px;
+    font-size: 0.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   .my-area-report {
     padding: 20px 15px;
@@ -182,15 +159,22 @@
     font-size: 1.4rem;
   }
 
-  .area-summary-cards {
-    grid-template-columns: 1fr;
+  .my-area-table-container {
+    overflow-x: auto;
   }
 
-  .plaza-grid {
-    grid-template-columns: 1fr;
+  .my-area-table {
+    min-width: 1000px;
+    font-size: 0.75rem;
   }
 
-  .card-value {
-    font-size: 1.5rem;
+  .my-area-table thead th {
+    padding: 8px 6px;
+    font-size: 0.7rem;
+  }
+
+  .my-area-table tbody td {
+    padding: 6px 4px;
+    font-size: 0.7rem;
   }
 }
