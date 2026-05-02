@@ -1,7 +1,7 @@
 import React from 'react';
 import './Header.css';
 
-function Header({ onScrollToStats, showStatsButton, onSaveYesterdayData, showSaveButton }) {
+function Header({ onScrollToStats, showStatsButton, onSaveYesterdayData, showSaveButton, user, userArea, onSignOut }) {
   return (
     <>
       <div className="developer-banner top">
@@ -38,6 +38,14 @@ function Header({ onScrollToStats, showStatsButton, onSaveYesterdayData, showSav
               </div>
             </div>
             <div className="header-actions">
+              {user && userArea && (
+                <div className="user-info">
+                  <span className="user-area">📍 {userArea}</span>
+                  <button className="signout-btn" onClick={onSignOut} title="Sign Out">
+                    🚪 Sign Out
+                  </button>
+                </div>
+              )}
               {showSaveButton && (
                 <button className="save-btn" onClick={onSaveYesterdayData} title="Save as Yesterday's Data">
                   <span className="btn-icon">💾</span>

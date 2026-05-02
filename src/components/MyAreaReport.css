@@ -1,0 +1,196 @@
+.my-area-report {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  animation: slideIn 0.5s ease-out;
+}
+
+.my-area-header h2 {
+  color: white;
+  margin: 0 0 20px 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.area-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.summary-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-5px);
+}
+
+.card-label {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.card-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.card-value.negative {
+  color: #e53e3e;
+}
+
+.card-value.positive {
+  color: #38a169;
+}
+
+.qty-badge, .amt-badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0 5px;
+}
+
+.qty-badge {
+  background: #e6f7ff;
+  color: #0066cc;
+}
+
+.amt-badge {
+  background: #f0f9ff;
+  color: #0284c7;
+}
+
+.plaza-list {
+  margin-top: 30px;
+}
+
+.plaza-list h3 {
+  color: white;
+  margin: 0 0 20px 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.plaza-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+}
+
+.plaza-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.plaza-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.plaza-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.plaza-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.stat-label {
+  color: #666;
+  font-weight: 600;
+}
+
+.stat-value {
+  color: #333;
+  font-weight: 700;
+}
+
+.stat-value.negative {
+  color: #e53e3e;
+}
+
+.stat-value.positive {
+  color: #38a169;
+}
+
+.no-data-message {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.no-data-message p {
+  color: #666;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .my-area-report {
+    padding: 20px 15px;
+  }
+
+  .my-area-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .area-summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .plaza-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-value {
+    font-size: 1.5rem;
+  }
+}

@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import './App.css';
+import Auth from './components/Auth';
+import MyAreaReport from './components/MyAreaReport';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
@@ -12,8 +14,12 @@ import OverdueStatistics from './components/OverdueStatistics';
 import AnalyticsSection from './components/AnalyticsSection';
 import { sendUploadNotification } from './utils/telegram';
 import { saveTodayData, saveTangailPlazaData } from './utils/supabase';
+import { supabase } from './config/supabaseClient';
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [userArea, setUserArea] = useState('');
+  const [authLoading, setAuthLoading] = useState(true);
   const [divisionData, setDivisionData] = useState([]);
   const [areaWiseData, setAreaWiseData] = useState([]);
   const [divisions, setDivisions] = useState([]);
@@ -21,6 +27,109 @@ function App() {
   const [selectedArea, setSelectedArea] = useState('');
   const [loading, setLoading] = useState(false);
   const statisticsRef = React.useRef(null);
+
+  // Check authentication status
+  useEffect(() => {
+    checkUser();
+
+    // Listen for auth changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        await handleAuthSuccess(session.user);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setUserArea('');
+      }
+    });
+
+    return () => {
+      authListener?.subscription?.unsubscribe();
+    };
+  }, []);
+
+  const checkUser = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        await loadUserProfile(session.user);
+      }
+    } catch (error) {
+      console.error('Error checking user:', error);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const loadUserProfile = async (authUser) => {
+    try {
+      // Check if user profile exists
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data) {
+        setUser(authUser);
+        setUserArea(data.area_name);
+      } else {
+        // New user - check for pending area from signup
+        const pendingArea = localStorage.getItem('pendingArea');
+        if (pendingArea) {
+          await createUserProfile(authUser, pendingArea);
+          localStorage.removeItem('pendingArea');
+        } else {
+          // Sign out if no area selected
+          await supabase.auth.signOut();
+          alert('Please sign up and select your area');
+        }
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+  };
+
+  const createUserProfile = async (authUser, area) => {
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .insert([
+          {
+            id: authUser.id,
+            email: authUser.email,
+            area_name: area,
+          },
+        ]);
+
+      if (error) throw error;
+
+      setUser(authUser);
+      setUserArea(area);
+    } catch (error) {
+      console.error('Error creating user profile:', error);
+      alert('Failed to create profile. Please try again.');
+    }
+  };
+
+  const handleAuthSuccess = async (authUser) => {
+    await loadUserProfile(authUser);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setUserArea('');
+      setDivisionData([]);
+      setAreaWiseData([]);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   const toNumber = (val) => {
     if (val === null || val === undefined || val === '') return 0;
@@ -436,6 +545,25 @@ function App() {
     }
   };
 
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="app">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '20px' }}>📊</div>
+            <div>Loading...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show auth page if not logged in
+  if (!user) {
+    return <Auth onAuthSuccess={handleAuthSuccess} />;
+  }
+
   return (
     <div className="app">
       <Header 
@@ -443,6 +571,9 @@ function App() {
         showStatsButton={divisionData.length > 0}
         onSaveYesterdayData={handleSaveYesterdayData}
         showSaveButton={areaWiseData.length > 0}
+        user={user}
+        userArea={userArea}
+        onSignOut={handleSignOut}
       />
       
       <div className="app-wrapper">
@@ -455,6 +586,10 @@ function App() {
           <Sidebar />
 
           <FileUpload onFileUpload={handleFile} loading={loading} />
+
+          {areaWiseData.length > 0 && userArea && (
+            <MyAreaReport userArea={userArea} areaWiseData={areaWiseData} />
+          )}
 
           {divisionData.length > 0 && (
             <>
