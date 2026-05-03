@@ -27,15 +27,35 @@ function App() {
   const [selectedArea, setSelectedArea] = useState('');
   const [loading, setLoading] = useState(false);
   const statisticsRef = React.useRef(null);
+  const isLoadingProfile = React.useRef(false);
 
   // Check authentication status
   useEffect(() => {
-    checkUser();
+    let mounted = true;
+
+    const initAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (mounted && session?.user) {
+          await loadUserProfile(session.user);
+        }
+      } catch (error) {
+        console.error('Error checking user:', error);
+      } finally {
+        if (mounted) {
+          setAuthLoading(false);
+        }
+      }
+    };
+
+    initAuth();
 
     // Listen for auth changes
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        await handleAuthSuccess(session.user);
+      if (!mounted) return;
+
+      if (event === 'SIGNED_IN' && session?.user) {
+        await loadUserProfile(session.user);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setUserArea('');
@@ -43,25 +63,20 @@ function App() {
     });
 
     return () => {
+      mounted = false;
       authListener?.subscription?.unsubscribe();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const checkUser = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        await loadUserProfile(session.user);
-      }
-    } catch (error) {
-      console.error('Error checking user:', error);
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
   const loadUserProfile = async (authUser) => {
+    // Prevent duplicate calls
+    if (isLoadingProfile.current) {
+      return;
+    }
+
+    isLoadingProfile.current = true;
+
     try {
       // Check if user profile exists
       const { data, error } = await supabase
@@ -91,6 +106,8 @@ function App() {
       }
     } catch (error) {
       console.error('Error loading user profile:', error);
+    } finally {
+      isLoadingProfile.current = false;
     }
   };
 
