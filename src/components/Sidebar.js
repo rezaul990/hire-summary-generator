@@ -1,7 +1,11 @@
 import React from 'react';
 import './Sidebar.css';
 
-function Sidebar() {
+const SUPER_USER_EMAIL = 'thedigitaltimes24@gmail.com';
+
+function Sidebar({ userEmail }) {
+  const isSuperUser = userEmail === SUPER_USER_EMAIL;
+
   const handlePersonIdReport = () => {
     // In development, open the Vite dev server
     // In production, open the built version
@@ -18,6 +22,11 @@ function Sidebar() {
       alert('Pop-up blocked! Please allow pop-ups for this site and try again.');
     }
   };
+
+  // Only show sidebar for super user
+  if (!isSuperUser) {
+    return null;
+  }
 
   return (
     <aside className="sidebar">

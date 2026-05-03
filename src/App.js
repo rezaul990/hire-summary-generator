@@ -45,6 +45,7 @@ function App() {
     return () => {
       authListener?.subscription?.unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const checkUser = async () => {
@@ -583,7 +584,7 @@ function App() {
             <p>POS এ লগিন করে - Sales &gt; Reports &gt; Hire Acc Target & Ach &gt; Collection Tr. & Achv. Summary Report ডাউনলোড করে আপলোড করুন</p>
           </div>
 
-          <Sidebar />
+          <Sidebar userEmail={user?.email} />
 
           <FileUpload onFileUpload={handleFile} loading={loading} />
 
