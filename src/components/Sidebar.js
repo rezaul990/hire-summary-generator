@@ -76,6 +76,39 @@ function Sidebar({ userEmail }) {
             <h4 className="tool-name">Sales Breakdown Analyze</h4>
             <span className="tool-link">Open Tool →</span>
           </a>
+
+          <a 
+            href="https://ninecriteria.netlify.app/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="tool-card highlighted"
+          >
+            <div className="tool-icon">📊</div>
+            <h4 className="tool-name">Growth Analysis</h4>
+            <span className="tool-link">Open Tool →</span>
+          </a>
+
+          <a 
+            href="https://collection-comparison.vercel.app/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="tool-card highlighted"
+          >
+            <div className="tool-icon">🔄</div>
+            <h4 className="tool-name">Collection Comparison</h4>
+            <span className="tool-link">Open Tool →</span>
+          </a>
+
+          <a 
+            href="https://cardcollectionactual.netlify.app/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="tool-card highlighted"
+          >
+            <div className="tool-icon">💳</div>
+            <h4 className="tool-name">Card Coll Actual</h4>
+            <span className="tool-link">Open Tool →</span>
+          </a>
         </div>
       </div>
     </aside>
