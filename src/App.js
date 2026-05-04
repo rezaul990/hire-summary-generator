@@ -36,20 +36,24 @@ function App() {
     const initAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        if (mounted && session?.user) {
-          // Try to load from cache first for faster initial load
-          const cachedArea = localStorage.getItem(`userArea_${session.user.id}`);
-          if (cachedArea) {
-            setUser(session.user);
-            setUserArea(cachedArea);
-            setAuthLoading(false);
-            // Verify in background (don't await)
-            verifyUserProfile(session.user, cachedArea);
+        
+        if (mounted) {
+          if (session?.user) {
+            // Try to load from cache first for faster initial load
+            const cachedArea = localStorage.getItem(`userArea_${session.user.id}`);
+            if (cachedArea) {
+              // Set everything synchronously for instant load
+              setUser(session.user);
+              setUserArea(cachedArea);
+              setAuthLoading(false);
+              // Verify in background (don't await)
+              verifyUserProfile(session.user, cachedArea);
+            } else {
+              // No cache, need to load from database
+              await loadUserProfile(session.user);
+            }
           } else {
-            await loadUserProfile(session.user);
-          }
-        } else {
-          if (mounted) {
+            // No session, show auth page
             setAuthLoading(false);
           }
         }
@@ -73,6 +77,7 @@ function App() {
         if (cachedArea) {
           setUser(session.user);
           setUserArea(cachedArea);
+          setAuthLoading(false);
         } else {
           await loadUserProfile(session.user);
         }
