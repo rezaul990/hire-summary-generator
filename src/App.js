@@ -35,26 +35,48 @@ function App() {
 
     const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        // Check cache immediately before any async calls
+        const cachedUserId = localStorage.getItem('cachedUserId');
+        const cachedArea = cachedUserId ? localStorage.getItem(`userArea_${cachedUserId}`) : null;
         
-        if (mounted) {
-          if (session?.user) {
-            // Try to load from cache first for faster initial load
-            const cachedArea = localStorage.getItem(`userArea_${session.user.id}`);
-            if (cachedArea) {
-              // Set everything synchronously for instant load
-              setUser(session.user);
-              setUserArea(cachedArea);
-              setAuthLoading(false);
-              // Verify in background (don't await)
-              verifyUserProfile(session.user, cachedArea);
-            } else {
-              // No cache, need to load from database
-              await loadUserProfile(session.user);
-            }
+        // If we have cache, show it immediately
+        if (cachedUserId && cachedArea) {
+          // Set loading to false immediately for instant display
+          setAuthLoading(false);
+          
+          // Now get the actual session
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (mounted && session?.user) {
+            setUser(session.user);
+            setUserArea(cachedArea);
+            // Verify in background
+            verifyUserProfile(session.user, cachedArea);
           } else {
-            // No session, show auth page
+            // Session expired, clear cache and show auth
+            localStorage.removeItem('cachedUserId');
+            localStorage.removeItem(`userArea_${cachedUserId}`);
             setAuthLoading(false);
+          }
+        } else {
+          // No cache, need to check session
+          const { data: { session } } = await supabase.auth.getSession();
+          
+          if (mounted) {
+            if (session?.user) {
+              const userArea = localStorage.getItem(`userArea_${session.user.id}`);
+              if (userArea) {
+                setUser(session.user);
+                setUserArea(userArea);
+                localStorage.setItem('cachedUserId', session.user.id);
+                setAuthLoading(false);
+                verifyUserProfile(session.user, userArea);
+              } else {
+                await loadUserProfile(session.user);
+              }
+            } else {
+              setAuthLoading(false);
+            }
           }
         }
       } catch (error) {
@@ -72,11 +94,11 @@ function App() {
       if (!mounted) return;
 
       if (event === 'SIGNED_IN' && session?.user) {
-        // Check cache first
         const cachedArea = localStorage.getItem(`userArea_${session.user.id}`);
         if (cachedArea) {
           setUser(session.user);
           setUserArea(cachedArea);
+          localStorage.setItem('cachedUserId', session.user.id);
           setAuthLoading(false);
         } else {
           await loadUserProfile(session.user);
@@ -84,9 +106,10 @@ function App() {
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setUserArea('');
-        // Clear cache on sign out
-        if (session?.user?.id) {
-          localStorage.removeItem(`userArea_${session.user.id}`);
+        const cachedUserId = localStorage.getItem('cachedUserId');
+        if (cachedUserId) {
+          localStorage.removeItem('cachedUserId');
+          localStorage.removeItem(`userArea_${cachedUserId}`);
         }
       }
     });
@@ -178,8 +201,9 @@ function App() {
 
       setUser(authUser);
       setUserArea(area);
-      // Cache the area
+      // Cache the area and user ID
       localStorage.setItem(`userArea_${authUser.id}`, area);
+      localStorage.setItem('cachedUserId', authUser.id);
     } catch (error) {
       console.error('Error creating user profile:', error);
       alert('Failed to create profile. Please try again.');
@@ -192,7 +216,12 @@ function App() {
 
   const handleSignOut = async () => {
     try {
-      // Clear cache before signing out
+      // Clear all cache before signing out
+      const cachedUserId = localStorage.getItem('cachedUserId');
+      if (cachedUserId) {
+        localStorage.removeItem('cachedUserId');
+        localStorage.removeItem(`userArea_${cachedUserId}`);
+      }
       if (user?.id) {
         localStorage.removeItem(`userArea_${user.id}`);
       }
