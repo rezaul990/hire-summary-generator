@@ -37,11 +37,24 @@ function App() {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (mounted && session?.user) {
-          await loadUserProfile(session.user);
+          // Try to load from cache first for faster initial load
+          const cachedArea = localStorage.getItem(`userArea_${session.user.id}`);
+          if (cachedArea) {
+            setUser(session.user);
+            setUserArea(cachedArea);
+            setAuthLoading(false);
+            // Verify in background (don't await)
+            verifyUserProfile(session.user, cachedArea);
+          } else {
+            await loadUserProfile(session.user);
+          }
+        } else {
+          if (mounted) {
+            setAuthLoading(false);
+          }
         }
       } catch (error) {
         console.error('Error checking user:', error);
-      } finally {
         if (mounted) {
           setAuthLoading(false);
         }
@@ -55,10 +68,21 @@ function App() {
       if (!mounted) return;
 
       if (event === 'SIGNED_IN' && session?.user) {
-        await loadUserProfile(session.user);
+        // Check cache first
+        const cachedArea = localStorage.getItem(`userArea_${session.user.id}`);
+        if (cachedArea) {
+          setUser(session.user);
+          setUserArea(cachedArea);
+        } else {
+          await loadUserProfile(session.user);
+        }
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
         setUserArea('');
+        // Clear cache on sign out
+        if (session?.user?.id) {
+          localStorage.removeItem(`userArea_${session.user.id}`);
+        }
       }
     });
 
@@ -68,6 +92,25 @@ function App() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const verifyUserProfile = async (authUser, cachedArea) => {
+    // Background verification - don't block UI
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('area_name')
+        .eq('id', authUser.id)
+        .single();
+
+      if (data && data.area_name !== cachedArea) {
+        // Update if cache is stale
+        setUserArea(data.area_name);
+        localStorage.setItem(`userArea_${authUser.id}`, data.area_name);
+      }
+    } catch (error) {
+      console.error('Error verifying user profile:', error);
+    }
+  };
 
   const loadUserProfile = async (authUser) => {
     // Prevent duplicate calls
@@ -92,6 +135,8 @@ function App() {
       if (data) {
         setUser(authUser);
         setUserArea(data.area_name);
+        // Cache the area for faster subsequent loads
+        localStorage.setItem(`userArea_${authUser.id}`, data.area_name);
       } else {
         // New user - check for pending area from signup
         const pendingArea = localStorage.getItem('pendingArea');
@@ -108,6 +153,7 @@ function App() {
       console.error('Error loading user profile:', error);
     } finally {
       isLoadingProfile.current = false;
+      setAuthLoading(false);
     }
   };
 
@@ -127,6 +173,8 @@ function App() {
 
       setUser(authUser);
       setUserArea(area);
+      // Cache the area
+      localStorage.setItem(`userArea_${authUser.id}`, area);
     } catch (error) {
       console.error('Error creating user profile:', error);
       alert('Failed to create profile. Please try again.');
@@ -139,6 +187,10 @@ function App() {
 
   const handleSignOut = async () => {
     try {
+      // Clear cache before signing out
+      if (user?.id) {
+        localStorage.removeItem(`userArea_${user.id}`);
+      }
       await supabase.auth.signOut();
       setUser(null);
       setUserArea('');
