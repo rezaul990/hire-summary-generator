@@ -124,7 +124,7 @@ function App() {
   const verifyUserProfile = async (authUser, cachedArea) => {
     // Background verification - don't block UI
     try {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('user_profiles')
         .select('area_name')
         .eq('id', authUser.id)
