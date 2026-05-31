@@ -55,11 +55,50 @@ function MyAreaReport({ userArea, areaWiseData }) {
   };
 
   const generateCanvas = async () => {
-    return html2canvas(captureRef.current, {
+    const node = captureRef.current;
+
+    // The table can be wider than the mobile viewport (horizontal scroll).
+    // Measure the full content width so html2canvas captures every column,
+    // including Inc/Dec, instead of only the visible portion.
+    const tableContainer = node.querySelector('.my-area-table-container');
+    const table = node.querySelector('.my-area-table');
+    const fullWidth = Math.ceil(
+      Math.max(
+        node.scrollWidth,
+        table ? table.scrollWidth : 0,
+        tableContainer ? tableContainer.scrollWidth : 0
+      )
+    );
+
+    return html2canvas(node, {
       backgroundColor: '#764ba2',
       scale: 2,
       useCORS: true,
       logging: false,
+      width: fullWidth,
+      windowWidth: fullWidth,
+      scrollX: 0,
+      scrollY: 0,
+      onclone: (clonedDoc) => {
+        // Force the cloned report to render at full width with no scroll clipping
+        const clonedCapture = clonedDoc.querySelector('.my-area-capture');
+        if (clonedCapture) {
+          clonedCapture.style.width = fullWidth + 'px';
+          clonedCapture.style.maxWidth = 'none';
+        }
+        const clonedContainer = clonedDoc.querySelector('.my-area-table-container');
+        if (clonedContainer) {
+          clonedContainer.style.overflow = 'visible';
+          clonedContainer.style.overflowX = 'visible';
+          clonedContainer.style.maxWidth = 'none';
+          clonedContainer.style.width = '100%';
+        }
+        const clonedTable = clonedDoc.querySelector('.my-area-table');
+        if (clonedTable) {
+          clonedTable.style.minWidth = '0';
+          clonedTable.style.width = '100%';
+        }
+      },
     });
   };
 
