@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
+import html2canvas from 'html2canvas';
 import './MyAreaReport.css';
 
 function MyAreaReport({ userArea, areaWiseData }) {
+  const captureRef = useRef(null);
+  const [sharing, setSharing] = useState(false);
+
   // Filter data for user's area
   const myAreaData = areaWiseData.filter(
     row => row.Area && row.Area.toLowerCase().includes(userArea.toLowerCase()) && 
@@ -50,70 +54,184 @@ function MyAreaReport({ userArea, areaWiseData }) {
     return new Intl.NumberFormat('en-IN').format(Math.round(num));
   };
 
+  const generateCanvas = async () => {
+    return html2canvas(captureRef.current, {
+      backgroundColor: '#764ba2',
+      scale: 2,
+      useCORS: true,
+      logging: false,
+    });
+  };
+
+  const getFileName = () => {
+    const date = new Date().toISOString().split('T')[0];
+    const safeArea = userArea.replace(/[^a-zA-Z0-9]/g, '_');
+    return `My_Area_Report_${safeArea}_${date}.png`;
+  };
+
+  const handleShareImage = async () => {
+    if (!captureRef.current) return;
+    setSharing(true);
+    try {
+      const canvas = await generateCanvas();
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      const fileName = getFileName();
+      const file = new File([blob], fileName, { type: 'image/png' });
+
+      // Try native share (works on mobile - WhatsApp, etc.)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `My Area Report: ${userArea}`,
+          text: `📍 My Area Report: ${userArea}`,
+        });
+      } else {
+        // Fallback: download the image
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Error sharing image:', error);
+        alert('❌ Could not share the image. Please try the Download button instead.');
+      }
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const handleDownloadImage = async () => {
+    if (!captureRef.current) return;
+    setSharing(true);
+    try {
+      const canvas = await generateCanvas();
+      const url = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = getFileName();
+      link.click();
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      alert('❌ Could not generate the image. Please try again.');
+    } finally {
+      setSharing(false);
+    }
+  };
+
   return (
     <div className="my-area-report">
       <div className="my-area-header">
         <h2>📍 My Area Report: {userArea}</h2>
+        <div className="my-area-actions">
+          <button className="share-btn" onClick={handleShareImage} disabled={sharing}>
+            <span>📤</span> {sharing ? 'Preparing...' : 'Share as Image'}
+          </button>
+          <button className="download-img-btn" onClick={handleDownloadImage} disabled={sharing}>
+            <span>⬇️</span> Download
+          </button>
+        </div>
       </div>
 
-      <div className="my-area-table-container">
-        <table className="my-area-table">
-          <thead>
-            <tr>
-              <th>Division</th>
-              <th>Area</th>
-              <th>Plaza</th>
-              <th>Target Qty</th>
-              <th>Ach. Qty</th>
-              <th>Qty %</th>
-              <th>Target Amt</th>
-              <th>Ach. Amt</th>
-              <th>Amt %</th>
-              <th>Prev O/D</th>
-              <th>Curr O/D</th>
-              <th>Inc/Dec</th>
-            </tr>
-          </thead>
-          <tbody>
-            {myAreaData.map((plaza, index) => {
-              const overdueChange = parseFloat(plaza.Running_Overdue || 0) - parseFloat(plaza.Previous_Overdue || 0);
-              return (
-                <tr key={index}>
-                  <td>{plaza.Division}</td>
-                  <td>{plaza.Area}</td>
-                  <td className="plaza-name-cell">{plaza.Plaza}</td>
-                  <td className="number-cell">{formatNumber(plaza.Collectible_Acc_Qty)}</td>
-                  <td className="number-cell">{formatNumber(plaza.Collected_Acc_Qty)}</td>
-                  <td className="number-cell">{plaza.Collection_Qty_Percent}</td>
-                  <td className="number-cell">{formatNumber(plaza.Collectible_Amount)}</td>
-                  <td className="number-cell">{formatNumber(plaza.Collected_Amount)}</td>
-                  <td className="number-cell">{plaza.Collection_Amt_Percent}</td>
-                  <td className="number-cell">{formatNumber(plaza.Previous_Overdue)}</td>
-                  <td className="number-cell">{formatNumber(plaza.Running_Overdue)}</td>
-                  <td className={`number-cell ${overdueChange > 0 ? 'negative-change' : 'positive-change'}`}>
-                    {overdueChange > 0 ? '' : ''}{formatNumber(overdueChange)}
-                  </td>
-                </tr>
-              );
-            })}
-            {/* Area Subtotal Row */}
-            <tr className="subtotal-row">
-              <td></td>
-              <td colSpan="2" className="subtotal-label">{userArea} - SUBTOTAL</td>
-              <td className="number-cell">{formatNumber(totalCollectibleQty)}</td>
-              <td className="number-cell">{formatNumber(totalCollectedQty)}</td>
-              <td className="number-cell">{qtyPercent}</td>
-              <td className="number-cell">{formatNumber(totalCollectibleAmt)}</td>
-              <td className="number-cell">{formatNumber(totalCollectedAmt)}</td>
-              <td className="number-cell">{amtPercent}</td>
-              <td className="number-cell">{formatNumber(totalPrevOverdue)}</td>
-              <td className="number-cell">{formatNumber(totalRunOverdue)}</td>
-              <td className={`number-cell ${overdueChange > 0 ? 'negative-change' : 'positive-change'}`}>
-                {overdueChange > 0 ? '' : ''}{formatNumber(overdueChange)}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="my-area-capture" ref={captureRef}>
+        <div className="capture-title">
+          📍 My Area Report: {userArea}
+          <span className="capture-date">{new Date().toLocaleDateString('en-GB')}</span>
+        </div>
+
+        <div className="my-area-stats">
+          <div className="stat-box">
+            <div className="stat-box-label">Total Plazas</div>
+            <div className="stat-box-value">{myAreaData.length}</div>
+          </div>
+          <div className="stat-box">
+            <div className="stat-box-label">Card Collected</div>
+            <div className="stat-box-value">{formatNumber(totalCollectedQty)}</div>
+          </div>
+          <div className="stat-box">
+            <div className="stat-box-label">Qty Achieved</div>
+            <div className="stat-box-value">{qtyPercent}%</div>
+          </div>
+          <div className="stat-box">
+            <div className="stat-box-label">Amt Achieved</div>
+            <div className="stat-box-value">{amtPercent}%</div>
+          </div>
+          <div className="stat-box">
+            <div className="stat-box-label">O/D Change</div>
+            <div className={`stat-box-value ${overdueChange > 0 ? 'value-up' : 'value-down'}`}>
+              {overdueChange > 0 ? '▲' : '▼'} {formatNumber(Math.abs(overdueChange))}
+            </div>
+          </div>
+        </div>
+
+        <div className="my-area-table-container">
+          <table className="my-area-table">
+            <thead>
+              <tr>
+                <th>Division</th>
+                <th>Area</th>
+                <th>Plaza</th>
+                <th>Target Qty</th>
+                <th>Ach. Qty</th>
+                <th>Qty %</th>
+                <th>Target Amt</th>
+                <th>Ach. Amt</th>
+                <th>Amt %</th>
+                <th>Prev O/D</th>
+                <th>Curr O/D</th>
+                <th>Inc/Dec</th>
+              </tr>
+            </thead>
+            <tbody>
+              {myAreaData.map((plaza, index) => {
+                const overdueChange = parseFloat(plaza.Running_Overdue || 0) - parseFloat(plaza.Previous_Overdue || 0);
+                return (
+                  <tr key={index}>
+                    <td>{plaza.Division}</td>
+                    <td>{plaza.Area}</td>
+                    <td className="plaza-name-cell">{plaza.Plaza}</td>
+                    <td className="number-cell">{formatNumber(plaza.Collectible_Acc_Qty)}</td>
+                    <td className="number-cell">{formatNumber(plaza.Collected_Acc_Qty)}</td>
+                    <td className="number-cell"><span className="percent-badge">{plaza.Collection_Qty_Percent}%</span></td>
+                    <td className="number-cell">{formatNumber(plaza.Collectible_Amount)}</td>
+                    <td className="number-cell">{formatNumber(plaza.Collected_Amount)}</td>
+                    <td className="number-cell"><span className="percent-badge">{plaza.Collection_Amt_Percent}%</span></td>
+                    <td className="number-cell">{formatNumber(plaza.Previous_Overdue)}</td>
+                    <td className="number-cell">{formatNumber(plaza.Running_Overdue)}</td>
+                    <td className="number-cell">
+                      <span className={`change-badge ${overdueChange > 0 ? 'change-up' : 'change-down'}`}>
+                        {overdueChange > 0 ? '▲' : '▼'} {formatNumber(Math.abs(overdueChange))}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+              {/* Area Subtotal Row */}
+              <tr className="subtotal-row">
+                <td></td>
+                <td colSpan="2" className="subtotal-label">{userArea} - SUBTOTAL</td>
+                <td className="number-cell">{formatNumber(totalCollectibleQty)}</td>
+                <td className="number-cell">{formatNumber(totalCollectedQty)}</td>
+                <td className="number-cell"><span className="percent-badge">{qtyPercent}%</span></td>
+                <td className="number-cell">{formatNumber(totalCollectibleAmt)}</td>
+                <td className="number-cell">{formatNumber(totalCollectedAmt)}</td>
+                <td className="number-cell"><span className="percent-badge">{amtPercent}%</span></td>
+                <td className="number-cell">{formatNumber(totalPrevOverdue)}</td>
+                <td className="number-cell">{formatNumber(totalRunOverdue)}</td>
+                <td className="number-cell">
+                  <span className={`change-badge ${overdueChange > 0 ? 'change-up' : 'change-down'}`}>
+                    {overdueChange > 0 ? '▲' : '▼'} {formatNumber(Math.abs(overdueChange))}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="capture-footer">Generated by Collection Analytics By Reza</div>
       </div>
     </div>
   );
