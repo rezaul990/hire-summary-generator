@@ -3,9 +3,26 @@ import html2canvas from 'html2canvas';
 import './DivisionSummary.css';
 import DataTable from './DataTable';
 
-function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, selectedArea, onAreaChange, onDownload }) {
+function DivisionSummary({ data, areaWiseData, divisions, selectedDivision, onDivisionChange, selectedArea, onAreaChange, onDownload }) {
   const [viewMode, setViewMode] = React.useState('division'); // Start with 'division' view as default
   const tableRef = useRef(null);
+
+  // Count plazas with a positive overdue Inc/Dec (overdue increased), grouped by area and division
+  const plazaPositiveCounts = useMemo(() => {
+    const byArea = {};
+    const byDivision = {};
+    let total = 0;
+    (areaWiseData || []).forEach(p => {
+      if (p.isSubtotal || p.isGrandTotal || !p.Plaza) return;
+      const change = parseFloat(p.Running_Overdue || 0) - parseFloat(p.Previous_Overdue || 0);
+      if (change > 0) {
+        byArea[p.Area] = (byArea[p.Area] || 0) + 1;
+        byDivision[p.Division] = (byDivision[p.Division] || 0) + 1;
+        total += 1;
+      }
+    });
+    return { byArea, byDivision, total };
+  }, [areaWiseData]);
 
   const handleScreenshot = async () => {
     if (!tableRef.current) return;
@@ -285,6 +302,30 @@ function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, 
     return filtered;
   }, [selectedDivision, selectedArea, data, viewMode]);
 
+  // Attach "plazas with positive overdue Inc/Dec" count as a new last column
+  const displayData = useMemo(() => {
+    const { byArea, byDivision } = plazaPositiveCounts;
+
+    const getRowCount = (row) => {
+      const stripped = (row.Area || '').replace(' - SUBTOTAL', '').trim();
+      if (byDivision[stripped] !== undefined) return byDivision[stripped];
+      if (byArea[stripped] !== undefined) return byArea[stripped];
+      return 0;
+    };
+
+    const grandTotalCount = (areaWiseData || []).filter(p => {
+      if (p.isSubtotal || p.isGrandTotal || !p.Plaza) return false;
+      if (selectedDivision && p.Division !== selectedDivision) return false;
+      if (selectedArea && p.Area !== selectedArea) return false;
+      return (parseFloat(p.Running_Overdue || 0) - parseFloat(p.Previous_Overdue || 0)) > 0;
+    }).length;
+
+    return filteredData.map(row => ({
+      ...row,
+      Plazas_OD_Increased: row.isGrandTotal ? grandTotalCount : getRowCount(row),
+    }));
+  }, [filteredData, plazaPositiveCounts, areaWiseData, selectedDivision, selectedArea]);
+
   const handleDivisionChange = (division) => {
     onDivisionChange(division);
     onAreaChange('');
@@ -432,7 +473,7 @@ function DivisionSummary({ data, divisions, selectedDivision, onDivisionChange, 
         </div>
       )}
 
-      <DataTable data={filteredData} />
+      <DataTable data={displayData} />
       </div>
     </section>
   );

@@ -699,6 +699,7 @@ function App() {
             <>
               <DivisionSummary 
                 data={divisionData} 
+                areaWiseData={areaWiseData}
                 divisions={divisions}
                 selectedDivision={selectedDivision}
                 onDivisionChange={setSelectedDivision}
