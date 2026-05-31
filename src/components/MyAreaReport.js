@@ -58,17 +58,23 @@ function MyAreaReport({ userArea, areaWiseData }) {
     const node = captureRef.current;
 
     // The table can be wider than the mobile viewport (horizontal scroll).
-    // Measure the full content width so html2canvas captures every column,
-    // including Inc/Dec, instead of only the visible portion.
+    // Measure the table's true content width and add the capture padding so
+    // html2canvas captures every column exactly, with no clipping and no
+    // extra empty background on the right.
     const tableContainer = node.querySelector('.my-area-table-container');
     const table = node.querySelector('.my-area-table');
-    const fullWidth = Math.ceil(
-      Math.max(
-        node.scrollWidth,
-        table ? table.scrollWidth : 0,
-        tableContainer ? tableContainer.scrollWidth : 0
-      )
+    const tableWidth = Math.ceil(
+      table
+        ? table.scrollWidth
+        : tableContainer
+        ? tableContainer.scrollWidth
+        : node.scrollWidth
     );
+
+    const style = window.getComputedStyle(node);
+    const padLeft = parseFloat(style.paddingLeft) || 0;
+    const padRight = parseFloat(style.paddingRight) || 0;
+    const fullWidth = Math.ceil(tableWidth + padLeft + padRight);
 
     return html2canvas(node, {
       backgroundColor: '#764ba2',
@@ -85,18 +91,19 @@ function MyAreaReport({ userArea, areaWiseData }) {
         if (clonedCapture) {
           clonedCapture.style.width = fullWidth + 'px';
           clonedCapture.style.maxWidth = 'none';
+          clonedCapture.style.boxSizing = 'border-box';
         }
         const clonedContainer = clonedDoc.querySelector('.my-area-table-container');
         if (clonedContainer) {
           clonedContainer.style.overflow = 'visible';
           clonedContainer.style.overflowX = 'visible';
           clonedContainer.style.maxWidth = 'none';
-          clonedContainer.style.width = '100%';
+          clonedContainer.style.width = tableWidth + 'px';
         }
         const clonedTable = clonedDoc.querySelector('.my-area-table');
         if (clonedTable) {
-          clonedTable.style.minWidth = '0';
-          clonedTable.style.width = '100%';
+          clonedTable.style.width = tableWidth + 'px';
+          clonedTable.style.minWidth = tableWidth + 'px';
         }
       },
     });
