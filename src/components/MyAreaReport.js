@@ -1,10 +1,22 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import html2canvas from 'html2canvas';
 import './MyAreaReport.css';
+import { getYesterdayTangailPlazaData } from '../utils/supabase';
 
 function MyAreaReport({ userArea, areaWiseData }) {
   const captureRef = useRef(null);
   const [sharing, setSharing] = useState(false);
+  const [yesterdayPlazaData, setYesterdayPlazaData] = useState({});
+  const isTangailUser = userArea && userArea.toLowerCase().includes('tangail');
+
+  useEffect(() => {
+    if (!isTangailUser) return;
+    const fetchYesterdayData = async () => {
+      const data = await getYesterdayTangailPlazaData();
+      setYesterdayPlazaData(data);
+    };
+    fetchYesterdayData();
+  }, [isTangailUser]);
 
   // Filter data for user's area
   const myAreaData = areaWiseData.filter(
@@ -32,6 +44,7 @@ function MyAreaReport({ userArea, areaWiseData }) {
   let totalCollectedAmt = 0;
   let totalPrevOverdue = 0;
   let totalRunOverdue = 0;
+  let totalTodayCollected = 0;
 
   myAreaData.forEach(row => {
     totalCollectibleQty += parseFloat(row.Collectible_Acc_Qty || 0);
@@ -40,6 +53,10 @@ function MyAreaReport({ userArea, areaWiseData }) {
     totalCollectedAmt += parseFloat(row.Collected_Amount || 0);
     totalPrevOverdue += parseFloat(row.Previous_Overdue || 0);
     totalRunOverdue += parseFloat(row.Running_Overdue || 0);
+
+    const yesterdayQty = yesterdayPlazaData[row.Plaza] || 0;
+    const todayCollected = parseFloat(row.Collected_Acc_Qty || 0) - yesterdayQty;
+    totalTodayCollected += todayCollected;
   });
 
   const qtyPercent = totalCollectibleQty > 0 
@@ -223,6 +240,7 @@ function MyAreaReport({ userArea, areaWiseData }) {
                 <th>Target Qty</th>
                 <th>Ach. Qty</th>
                 <th>Qty %</th>
+                {isTangailUser && <th className="today-collected-header">Today's Collected</th>}
                 <th>Target Amt</th>
                 <th>Ach. Amt</th>
                 <th>Amt %</th>
@@ -234,6 +252,8 @@ function MyAreaReport({ userArea, areaWiseData }) {
             <tbody>
               {myAreaData.map((plaza, index) => {
                 const overdueChange = parseFloat(plaza.Running_Overdue || 0) - parseFloat(plaza.Previous_Overdue || 0);
+                const yesterdayQty = yesterdayPlazaData[plaza.Plaza] || 0;
+                const todayCollected = parseFloat(plaza.Collected_Acc_Qty || 0) - yesterdayQty;
                 return (
                   <tr key={index}>
                     <td>{plaza.Division}</td>
@@ -242,6 +262,13 @@ function MyAreaReport({ userArea, areaWiseData }) {
                     <td className="number-cell">{formatNumber(plaza.Collectible_Acc_Qty)}</td>
                     <td className="number-cell">{formatNumber(plaza.Collected_Acc_Qty)}</td>
                     <td className="number-cell"><span className="percent-badge">{plaza.Collection_Qty_Percent}%</span></td>
+                    {isTangailUser && (
+                      <td className="number-cell today-collected-cell-warn">
+                        <span className={`today-collected-badge ${todayCollected < 10 ? 'collected-warn' : todayCollected > 0 ? 'collected-up' : todayCollected < 0 ? 'collected-down' : ''}`}>
+                          {todayCollected > 0 ? '+' : ''}{formatNumber(todayCollected)}
+                        </span>
+                      </td>
+                    )}
                     <td className="number-cell">{formatNumber(plaza.Collectible_Amount)}</td>
                     <td className="number-cell">{formatNumber(plaza.Collected_Amount)}</td>
                     <td className="number-cell"><span className="percent-badge">{plaza.Collection_Amt_Percent}%</span></td>
@@ -262,6 +289,13 @@ function MyAreaReport({ userArea, areaWiseData }) {
                 <td className="number-cell">{formatNumber(totalCollectibleQty)}</td>
                 <td className="number-cell">{formatNumber(totalCollectedQty)}</td>
                 <td className="number-cell"><span className="percent-badge">{qtyPercent}%</span></td>
+                {isTangailUser && (
+                  <td className="number-cell today-collected-cell-warn">
+                    <span className={`today-collected-badge ${totalTodayCollected < 10 ? 'collected-warn' : totalTodayCollected > 0 ? 'collected-up' : totalTodayCollected < 0 ? 'collected-down' : ''}`}>
+                      {totalTodayCollected > 0 ? '+' : ''}{formatNumber(totalTodayCollected)}
+                    </span>
+                  </td>
+                )}
                 <td className="number-cell">{formatNumber(totalCollectibleAmt)}</td>
                 <td className="number-cell">{formatNumber(totalCollectedAmt)}</td>
                 <td className="number-cell"><span className="percent-badge">{amtPercent}%</span></td>

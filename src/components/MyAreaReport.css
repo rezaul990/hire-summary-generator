@@ -257,6 +257,50 @@
   color: #1f9d55;
 }
 
+.today-collected-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  background: #f0f4f8;
+  color: #4a5568;
+}
+
+.today-collected-badge.collected-up {
+  background: #e6f9ed;
+  color: #1f9d55;
+}
+
+.today-collected-badge.collected-down {
+  background: #fde8e8;
+  color: #c53030;
+}
+
+.today-collected-badge.collected-warn {
+  background: #fde8e8;
+  color: #c53030;
+  font-weight: 800;
+}
+
+.today-collected-cell-warn {
+  border-left: 2px solid #e53e3e;
+  border-right: 2px solid #e53e3e;
+  background: #fff5f5;
+}
+
+.subtotal-row .today-collected-cell-warn {
+  border-bottom: 2px solid #e53e3e;
+}
+
+.today-collected-header {
+  border-left: 2px solid #e53e3e !important;
+  border-right: 2px solid #e53e3e !important;
+  border-top: 2px solid #e53e3e !important;
+  background: #c53030 !important;
+}
+
 .negative-change {
   color: #e53e3e;
   font-weight: 700;
@@ -350,7 +394,7 @@
   }
 
   .my-area-table {
-    min-width: 1000px;
+    min-width: 1100px;
     font-size: 0.75rem;
   }
 
