@@ -1,0 +1,201 @@
+.tangail-daily-report {
+  margin-bottom: 30px;
+}
+
+.tdr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.tdr-header h2 {
+  color: #2d3748;
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.tdr-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.tdr-share-btn,
+.tdr-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 22px;
+  padding: 9px 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.tdr-share-btn {
+  background: #25d366;
+  color: white;
+}
+
+.tdr-share-btn:hover:not(:disabled) {
+  background: #1da851;
+  transform: translateY(-2px);
+}
+
+.tdr-download-btn {
+  background: #4a5568;
+  color: white;
+}
+
+.tdr-download-btn:hover:not(:disabled) {
+  background: #2d3748;
+  transform: translateY(-2px);
+}
+
+.tdr-share-btn:disabled,
+.tdr-download-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===== Capture area (what gets shared as image) ===== */
+.tdr-capture {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 500px;
+}
+
+/* Yellow title bar */
+.tdr-title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f5c518;
+  padding: 10px 16px;
+}
+
+.tdr-title-text {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: 0.3px;
+}
+
+.tdr-time-badge {
+  background: #e53e3e;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 800;
+  padding: 4px 14px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* Table */
+.tdr-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Column headers — dark teal */
+.tdr-table thead tr {
+  background: #234e52;
+}
+
+.tdr-table thead th {
+  color: white;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 10px 16px;
+  text-align: left;
+}
+
+.tdr-th-plaza {
+  width: 70%;
+}
+
+.tdr-th-ach {
+  width: 30%;
+  text-align: center !important;
+}
+
+/* Data rows */
+.tdr-table tbody td {
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: white;
+}
+
+.tdr-td-plaza {
+  text-align: left;
+}
+
+.tdr-td-ach {
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.05rem;
+}
+
+/* Red rows (value < 10) */
+.tdr-row-red td {
+  background: #c53030;
+}
+
+/* Teal rows (value >= 10) */
+.tdr-row-teal td {
+  background: #234e52;
+}
+
+/* Total row — dark teal */
+.tdr-row-total td {
+  background: #1a365d;
+  color: white;
+  font-weight: 800;
+  font-size: 1.05rem;
+  padding: 12px 16px;
+  border-top: 2px solid #2d3748;
+}
+
+.tdr-td-total-label {
+  text-align: left;
+}
+
+.tdr-td-total-value {
+  text-align: center;
+  font-size: 1.15rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .tdr-capture {
+    max-width: 100%;
+  }
+
+  .tdr-title-text {
+    font-size: 1rem;
+  }
+
+  .tdr-time-badge {
+    font-size: 0.85rem;
+    padding: 3px 10px;
+  }
+
+  .tdr-table thead th {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+
+  .tdr-table tbody td {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+  }
+}
