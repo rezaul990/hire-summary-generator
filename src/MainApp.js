@@ -254,6 +254,25 @@ function App() {
     return null;
   };
 
+  // Updated findColumn to handle special header formats with percentages and varying spacing
+  const findColumnExtended = (row, keywords, allowPercentage = false) => {
+    for (let col in row) {
+      const name = normalize(col);
+      // Check for main keywords
+      const hasMainKeyword = keywords.some(k => name.includes(k));
+      if (hasMainKeyword) {
+        // If percentage columns, check for percentage keyword too
+        if (allowPercentage && !name.includes('percentage') && !name.includes('%')) {
+          return col;
+        } else if (!allowPercentage && name.includes('percentage')) {
+          continue; // Skip percentage columns if not requested
+        }
+        return col;
+      }
+    }
+    return null;
+  };
+
   const handleFile = (file) => {
     if (!file) return;
     
@@ -302,11 +321,12 @@ function App() {
 
     for (let i = 0; i < raw.length; i++) {
       const text = raw[i].join(' ').toLowerCase();
+      // Updated to support both original format and new format with spacing
       if (
         text.includes('division') &&
         text.includes('area') &&
         text.includes('plaza') &&
-        text.includes('collectible')
+        (text.includes('collectible') || text.includes('collectable'))
       ) {
         headerIndex = i;
         break;
@@ -339,12 +359,13 @@ function App() {
       const areaCol = findColumn(row, ['area']);
       const plazaCol = findColumn(row, ['plaza']);
 
-      const collectibleQtyCol = findColumn(row, ['collectibleaccqty']);
-      const collectedQtyCol = findColumn(row, ['collectedaccqty']);
-      const collectibleAmtCol = findColumn(row, ['collectibleamt']);
-      const collectedAmtCol = findColumn(row, ['collectedamt']);
-      const prevOverdueCol = findColumn(row, ['previousmonthoverdue']);
-      const runOverdueCol = findColumn(row, ['runningmonthoverdue']);
+      // Updated column detection to support both original and new header formats
+      const collectibleQtyCol = findColumn(row, ['collectibleaccqty', 'collectableaccqty']);
+      const collectedQtyCol = findColumn(row, ['collectedaccqty', 'collectedaccqty']);
+      const collectibleAmtCol = findColumn(row, ['collectibleamt', 'collectableamt']);
+      const collectedAmtCol = findColumn(row, ['collectedamt', 'collectedamt']);
+      const prevOverdueCol = findColumn(row, ['previousmonthoverdue', 'previousmonthoverdue']);
+      const runOverdueCol = findColumn(row, ['runningmonthoverdue', 'runningmonthoverdue']);
 
       const division = String(row[divisionCol] || '').trim();
       const area = String(row[areaCol] || '').trim();
