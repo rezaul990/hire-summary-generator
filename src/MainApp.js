@@ -254,25 +254,6 @@ function App() {
     return null;
   };
 
-  // Updated findColumn to handle special header formats with percentages and varying spacing
-  const findColumnExtended = (row, keywords, allowPercentage = false) => {
-    for (let col in row) {
-      const name = normalize(col);
-      // Check for main keywords
-      const hasMainKeyword = keywords.some(k => name.includes(k));
-      if (hasMainKeyword) {
-        // If percentage columns, check for percentage keyword too
-        if (allowPercentage && !name.includes('percentage') && !name.includes('%')) {
-          return col;
-        } else if (!allowPercentage && name.includes('percentage')) {
-          continue; // Skip percentage columns if not requested
-        }
-        return col;
-      }
-    }
-    return null;
-  };
-
   const handleFile = (file) => {
     if (!file) return;
     
