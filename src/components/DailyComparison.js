@@ -32,6 +32,16 @@ function DailyComparison() {
     return null;
   };
 
+  // Updated to support both original and enhanced header formats
+  const findColumnEnhanced = (row, keywords) => {
+    for (let col in row) {
+      const name = normalize(col);
+      // Check for main keywords or 'collectable' spelling variations
+      if (keywords.some(k => name.includes(k) || name.includes(k.replace('collectible', 'collectable')))) return col;
+    }
+    return null;
+  };
+
   const processFile = (file, isCurrentDay) => {
     const reader = new FileReader();
 
@@ -48,7 +58,7 @@ function DailyComparison() {
           text.includes('division') &&
           text.includes('area') &&
           text.includes('plaza') &&
-          text.includes('collectible')
+          (text.includes('collectible') || text.includes('collectable'))
         ) {
           headerIndex = i;
           break;
@@ -74,8 +84,9 @@ function DailyComparison() {
           const divisionCol = findColumn(row, ['division']);
           const areaCol = findColumn(row, ['area']);
           const plazaCol = findColumn(row, ['plaza']);
-          const collectedQtyCol = findColumn(row, ['collectedaccqty']);
-          const collectedAmtCol = findColumn(row, ['collectedamt']);
+          // Updated to support enhanced headers
+          const collectedQtyCol = findColumnEnhanced(row, ['collectedaccqty', 'collectedaccqty']);
+          const collectedAmtCol = findColumnEnhanced(row, ['collectedamt', 'collectedamt']);
           const runOverdueCol = findColumn(row, ['runningmonthoverdue']);
           const prevOverdueCol = findColumn(row, ['previousmonthoverdue']);
 
