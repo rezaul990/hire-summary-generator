@@ -4,6 +4,7 @@ import './App.css';
 import Auth from './components/Auth';
 import MyAreaReport from './components/MyAreaReport';
 import TangailDailyReport from './components/TangailDailyReport';
+import TangailAreaReport from './components/TangailAreaReport';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
@@ -13,8 +14,9 @@ import AreaWiseSummary from './components/AreaWiseSummary';
 import DailyComparison from './components/DailyComparison';
 import OverdueStatistics from './components/OverdueStatistics';
 import AnalyticsSection from './components/AnalyticsSection';
+import AllAreasTodayReport from './components/AllAreasTodayReport';
 import { sendUploadNotification } from './utils/telegram';
-import { saveTodayData, saveTangailPlazaData } from './utils/supabase';
+import { saveTodayData, saveTangailPlazaData, saveAllPlazaDailyCollection } from './utils/supabase';
 import { supabase } from './config/supabaseClient';
 
 function App() {
@@ -418,6 +420,20 @@ function App() {
       console.error('Telegram notification failed:', err);
       // Don't show error to user, just log it
     });
+
+    // Save today's per-plaza collected qty for ALL areas so every user gets
+    // a "Today's Collected" comparison on the next upload.
+    const allPlazaRecords = areaWiseSummary
+      .filter(row => !row.isSubtotal && !row.isGrandTotal && row.Plaza)
+      .map(row => ({
+        area: row.Area,
+        plaza: row.Plaza,
+        collectedQty: row.Collected_Acc_Qty || 0,
+      }));
+
+    saveAllPlazaDailyCollection(allPlazaRecords).catch(err => {
+      console.error('All-plaza daily save failed:', err);
+    });
   };
 
   const generateDivisionSummary = (grouped) => {
@@ -590,15 +606,20 @@ function App() {
       return;
     }
 
-    // Filter Division-02 areas
+    // ── All-area plaza records (for Today's Collected across every area) ──
+    const allPlazaRecords = areaWiseData.filter(
+      row => !row.isSubtotal && !row.isGrandTotal && row.Plaza
+    );
+    const totalPlazas = allPlazaRecords.length;
+    const totalAreas  = [...new Set(allPlazaRecords.map(r => r.Area))].length;
+
+    // ── Legacy: Division-02 area-level records (for Telegram report) ──
     const division02Areas = ['dhaka west', 'gazipur west', 'sirajgonj', 'tangail'];
     const areaReports = [];
-
     division02Areas.forEach(areaName => {
       const areaData = areaWiseData.filter(
         row => row.Area && row.Area.toLowerCase().includes(areaName) && row.isSubtotal
       );
-
       if (areaData.length > 0) {
         const area = areaData[0];
         areaReports.push({
@@ -608,47 +629,54 @@ function App() {
       }
     });
 
-    // Filter Tangail plaza data
+    // ── Legacy: Tangail plaza-level records (for tangail_plaza_daily) ──
     const tangailPlazaData = areaWiseData.filter(
-      row => row.Area && row.Area.toLowerCase().includes('tangail') && !row.isSubtotal && !row.isGrandTotal && row.Plaza
+      row => row.Area && row.Area.toLowerCase().includes('tangail') &&
+             !row.isSubtotal && !row.isGrandTotal && row.Plaza
     );
-
     const plazaReports = tangailPlazaData.map(plaza => ({
       name: plaza.Plaza,
       collectedQty: plaza.Collected_Acc_Qty || 0,
     }));
 
-    if (areaReports.length === 0 && plazaReports.length === 0) {
-      alert('❌ No Division-02 or Tangail data found in the uploaded file.');
+    if (totalPlazas === 0) {
+      alert('❌ No plaza data found in the uploaded file.');
       return;
     }
 
-    let confirmMessage = '💾 Save this data as Yesterday\'s Data?\n\n';
-    
-    if (areaReports.length > 0) {
-      confirmMessage += '📊 DIVISION-02 AREAS:\n';
-      confirmMessage += areaReports.map(a => `${a.name}: ${a.collectedQty} cards`).join('\n');
-    }
-    
-    if (plazaReports.length > 0) {
-      confirmMessage += '\n\n🏪 TANGAIL PLAZAS:\n';
-      confirmMessage += plazaReports.map(p => `${p.name}: ${p.collectedQty} cards`).join('\n');
-    }
-    
-    confirmMessage += '\n\nThis will be used for comparison when you upload today\'s file.';
+    const todayStr = new Date().toLocaleDateString('en-GB');
+    const confirmMessage =
+      `💾 Save today's data as Yesterday's baseline?\n\n` +
+      `📅 Date: ${todayStr}\n` +
+      `🏪 Total plazas: ${totalPlazas} across ${totalAreas} areas\n\n` +
+      `This saves collected qty for EVERY plaza in ALL areas.\n` +
+      `Tomorrow's upload will use this as the baseline to compute\n` +
+      `"Today's Collected" for every user's area report.`;
 
     const confirmed = window.confirm(confirmMessage);
-
     if (!confirmed) return;
 
-    // Save both Division-02 and Tangail data
-    const success1 = areaReports.length > 0 ? await saveTodayData(areaReports) : true;
-    const success2 = plazaReports.length > 0 ? await saveTangailPlazaData(plazaReports) : true;
+    // Save all three tables in parallel
+    const allPlazaPayload = allPlazaRecords.map(row => ({
+      area:         row.Area,
+      plaza:        row.Plaza,
+      collectedQty: row.Collected_Acc_Qty || 0,
+    }));
 
-    if (success1 && success2) {
-      alert('✅ Yesterday\'s data saved successfully!\n\nNow upload today\'s Excel file to see the comparison in Telegram.');
+    const [success1, success2, success3] = await Promise.all([
+      areaReports.length   > 0 ? saveTodayData(areaReports)                      : Promise.resolve(true),
+      plazaReports.length  > 0 ? saveTangailPlazaData(plazaReports)               : Promise.resolve(true),
+      allPlazaPayload.length > 0 ? saveAllPlazaDailyCollection(allPlazaPayload)   : Promise.resolve(true),
+    ]);
+
+    if (success1 && success2 && success3) {
+      alert(
+        `✅ Baseline saved for all areas!\n\n` +
+        `📊 ${totalPlazas} plazas across ${totalAreas} areas saved.\n` +
+        `Upload tomorrow's file to see Today's Collected for every user.`
+      );
     } else {
-      alert('❌ Failed to save data. Please check your internet connection and try again.');
+      alert('❌ Some data failed to save. Please check your connection and try again.');
     }
   };
 
@@ -698,8 +726,16 @@ function App() {
             <MyAreaReport userArea={userArea} areaWiseData={areaWiseData} />
           )}
 
+          {areaWiseData.length > 0 && (
+            <AllAreasTodayReport areaWiseData={areaWiseData} />
+          )}
+
           {areaWiseData.length > 0 && userArea && (
             <TangailDailyReport userArea={userArea} areaWiseData={areaWiseData} />
+          )}
+
+          {areaWiseData.length > 0 && userArea && (
+            <TangailAreaReport userArea={userArea} areaWiseData={areaWiseData} />
           )}
 
           {divisionData.length > 0 && (

@@ -1,0 +1,434 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   AllAreasTodayReport  –  Today's Collected for All Areas
+───────────────────────────────────────────────────────────────────────────── */
+
+.atdr-section {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin: 20px 0;
+  overflow: hidden;
+}
+
+/* ── Collapsible header ───────────────────────────────────────────────────── */
+.atdr-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+  cursor: pointer;
+  user-select: none;
+  gap: 12px;
+}
+
+.atdr-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.atdr-header-title h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.atdr-expand-hint {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.atdr-collapse-icon {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+  min-width: 14px;
+}
+
+.atdr-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Header action buttons ────────────────────────────────────────────────── */
+.atdr-btn {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.atdr-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.atdr-btn-share {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.atdr-btn-share:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.38);
+}
+
+.atdr-btn-download {
+  background: #ffffff;
+  color: #2d6a4f;
+}
+
+.atdr-btn-download:hover:not(:disabled) {
+  background: #f0f9f4;
+}
+
+/* ── Body ─────────────────────────────────────────────────────────────────── */
+.atdr-body {
+  padding: 16px 20px 20px;
+}
+
+/* ── Status banners ───────────────────────────────────────────────────────── */
+.atdr-status {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.84rem;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+
+.atdr-status-loading {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.atdr-status-nodata {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.atdr-status-ok {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* ── Controls row ─────────────────────────────────────────────────────────── */
+.atdr-controls {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.atdr-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.atdr-filter-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.atdr-filter-box label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.atdr-select {
+  padding: 6px 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-size: 0.84rem;
+  background: #f7fafc;
+  color: #2d3748;
+  min-width: 160px;
+  cursor: pointer;
+}
+
+.atdr-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── View toggle ──────────────────────────────────────────────────────────── */
+.atdr-view-toggle {
+  display: flex;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #cbd5e0;
+}
+
+.atdr-toggle-btn {
+  padding: 7px 16px;
+  border: none;
+  background: #f7fafc;
+  color: #4a5568;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+
+.atdr-toggle-btn + .atdr-toggle-btn {
+  border-left: 1px solid #cbd5e0;
+}
+
+.atdr-toggle-btn.active {
+  background: #2d6a4f;
+  color: #ffffff;
+}
+
+.atdr-toggle-btn:hover:not(.active) {
+  background: #edf2f7;
+}
+
+/* ── Capture wrapper ──────────────────────────────────────────────────────── */
+.atdr-capture {
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+}
+
+.atdr-capture-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #2d6a4f 0%, #40916c 100%);
+}
+
+.atdr-capture-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.atdr-capture-date {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 500;
+}
+
+/* ── Summary cards ────────────────────────────────────────────────────────── */
+.atdr-summary-cards {
+  display: flex;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #f8fafc;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.atdr-card {
+  flex: 1;
+  min-width: 120px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: center;
+}
+
+.atdr-card-highlight {
+  border-color: #40916c;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+}
+
+.atdr-card-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #718096;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 5px;
+}
+
+.atdr-card-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+/* ── Table ────────────────────────────────────────────────────────────────── */
+.atdr-table-scroll {
+  overflow-x: auto;
+  padding: 0 0 4px;
+}
+
+.atdr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+  min-width: 600px;
+}
+
+.atdr-table thead tr {
+  background: #2d6a4f;
+  color: #ffffff;
+}
+
+.atdr-table th {
+  padding: 9px 12px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.atdr-th-today {
+  background: #1b4332 !important;
+  border-left: 2px solid #52b788;
+  border-right: 2px solid #52b788;
+}
+
+.atdr-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0f4f8;
+  vertical-align: middle;
+}
+
+.atdr-td-today {
+  border-left: 2px solid #52b788;
+  border-right: 2px solid #52b788;
+}
+
+.atdr-row-even { background: #ffffff; }
+.atdr-row-odd  { background: #f7fbf8; }
+
+.atdr-row-even:hover,
+.atdr-row-odd:hover {
+  background: #edf7f0;
+}
+
+.atdr-row-total {
+  background: #1b4332 !important;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.atdr-row-total td {
+  border-bottom: none;
+  color: #ffffff;
+}
+
+.atdr-td-center      { text-align: center; color: #718096; font-size: 0.78rem; }
+.atdr-td-num         { text-align: right; font-variant-numeric: tabular-nums; }
+.atdr-td-area        { font-weight: 600; color: #2d3748; }
+.atdr-td-plaza       { color: #4a5568; }
+.atdr-td-total-label { font-weight: 700; }
+
+/* ── Badges ───────────────────────────────────────────────────────────────── */
+.atdr-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.atdr-badge-up {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.atdr-badge-down {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.atdr-badge-warn {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.atdr-badge-na {
+  background: #f1f5f9;
+  color: #94a3b8;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.atdr-pct-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+/* ── Value colours ────────────────────────────────────────────────────────── */
+.atdr-val-up    { color: #16a34a; }
+.atdr-val-down  { color: #dc2626; }
+.atdr-val-muted { color: #94a3b8; }
+
+/* ── Footer ───────────────────────────────────────────────────────────────── */
+.atdr-capture-footer {
+  text-align: center;
+  padding: 8px;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  border-top: 1px solid #f0f4f8;
+  background: #f8fafc;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .atdr-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .atdr-view-toggle {
+    width: 100%;
+  }
+
+  .atdr-toggle-btn {
+    flex: 1;
+  }
+
+  .atdr-summary-cards {
+    gap: 8px;
+  }
+
+  .atdr-card {
+    min-width: 100px;
+  }
+
+  .atdr-card-value {
+    font-size: 1rem;
+  }
+
+  .atdr-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .atdr-header-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

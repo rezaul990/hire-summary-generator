@@ -1,27 +1,23 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import './MyAreaReport.css';
-import { getYesterdayTangailPlazaData } from '../utils/supabase';
+import { useTodaysCollectedForArea, calcTodayCollected } from '../utils/useTodaysCollected';
 
 function MyAreaReport({ userArea, areaWiseData }) {
   const captureRef = useRef(null);
   const [sharing, setSharing] = useState(false);
-  const [yesterdayPlazaData, setYesterdayPlazaData] = useState({});
-  const isTangailUser = userArea && userArea.toLowerCase().includes('tangail');
 
-  useEffect(() => {
-    if (!isTangailUser) return;
-    const fetchYesterdayData = async () => {
-      const data = await getYesterdayTangailPlazaData();
-      setYesterdayPlazaData(data);
-    };
-    fetchYesterdayData();
-  }, [isTangailUser]);
+  // Fetch yesterday's per-plaza baseline for this user's area (all areas supported)
+  const { data: yesterdayPlazaData, loading: loadingYesterday } = useTodaysCollectedForArea(userArea);
 
-  // Filter data for user's area
+  // Filter data for user's area (no subtotals, actual plaza rows only)
   const myAreaData = areaWiseData.filter(
-    row => row.Area && row.Area.toLowerCase().includes(userArea.toLowerCase()) && 
-    !row.isSubtotal && !row.isGrandTotal && row.Plaza
+    row =>
+      row.Area &&
+      row.Area.toLowerCase().includes(userArea.toLowerCase()) &&
+      !row.isSubtotal &&
+      !row.isGrandTotal &&
+      row.Plaza
   );
 
   if (myAreaData.length === 0) {
@@ -37,49 +33,46 @@ function MyAreaReport({ userArea, areaWiseData }) {
     );
   }
 
-  // Calculate area totals
-  let totalCollectibleQty = 0;
-  let totalCollectedQty = 0;
-  let totalCollectibleAmt = 0;
-  let totalCollectedAmt = 0;
-  let totalPrevOverdue = 0;
-  let totalRunOverdue = 0;
-  let totalTodayCollected = 0;
+  // ── Compute area totals ──────────────────────────────────────────────────
+  let totalCollectibleQty  = 0;
+  let totalCollectedQty    = 0;
+  let totalCollectibleAmt  = 0;
+  let totalCollectedAmt    = 0;
+  let totalPrevOverdue     = 0;
+  let totalRunOverdue      = 0;
+  let totalTodayCollected  = 0;
+
+  // Whether any yesterday data exists for this area
+  const hasYesterdayData = Object.keys(yesterdayPlazaData).length > 0;
 
   myAreaData.forEach(row => {
     totalCollectibleQty += parseFloat(row.Collectible_Acc_Qty || 0);
-    totalCollectedQty += parseFloat(row.Collected_Acc_Qty || 0);
-    totalCollectibleAmt += parseFloat(row.Collectible_Amount || 0);
-    totalCollectedAmt += parseFloat(row.Collected_Amount || 0);
-    totalPrevOverdue += parseFloat(row.Previous_Overdue || 0);
-    totalRunOverdue += parseFloat(row.Running_Overdue || 0);
+    totalCollectedQty   += parseFloat(row.Collected_Acc_Qty   || 0);
+    totalCollectibleAmt += parseFloat(row.Collectible_Amount  || 0);
+    totalCollectedAmt   += parseFloat(row.Collected_Amount    || 0);
+    totalPrevOverdue    += parseFloat(row.Previous_Overdue    || 0);
+    totalRunOverdue     += parseFloat(row.Running_Overdue     || 0);
 
     const yesterdayQty = yesterdayPlazaData[row.Plaza] || 0;
-    const todayCollected = parseFloat(row.Collected_Acc_Qty || 0) - yesterdayQty;
-    totalTodayCollected += todayCollected;
+    totalTodayCollected += calcTodayCollected(row.Collected_Acc_Qty, yesterdayQty);
   });
 
-  const qtyPercent = totalCollectibleQty > 0 
-    ? ((totalCollectedQty / totalCollectibleQty) * 100).toFixed(2) 
+  const qtyPercent = totalCollectibleQty > 0
+    ? ((totalCollectedQty / totalCollectibleQty) * 100).toFixed(2)
     : '0.00';
-  const amtPercent = totalCollectibleAmt > 0 
-    ? ((totalCollectedAmt / totalCollectibleAmt) * 100).toFixed(2) 
+  const amtPercent = totalCollectibleAmt > 0
+    ? ((totalCollectedAmt / totalCollectibleAmt) * 100).toFixed(2)
     : '0.00';
   const overdueChange = totalRunOverdue - totalPrevOverdue;
 
-  const formatNumber = (num) => {
-    return new Intl.NumberFormat('en-IN').format(Math.round(num));
-  };
+  const formatNumber = (num) =>
+    new Intl.NumberFormat('en-IN').format(Math.round(num));
 
+  // ── html2canvas capture ──────────────────────────────────────────────────
   const generateCanvas = async () => {
     const node = captureRef.current;
-
-    // The table can be wider than the mobile viewport (horizontal scroll).
-    // Measure the table's true content width and add the capture padding so
-    // html2canvas captures every column exactly, with no clipping and no
-    // extra empty background on the right.
     const tableContainer = node.querySelector('.my-area-table-container');
-    const table = node.querySelector('.my-area-table');
+    const table          = node.querySelector('.my-area-table');
     const tableWidth = Math.ceil(
       table
         ? table.scrollWidth
@@ -87,9 +80,8 @@ function MyAreaReport({ userArea, areaWiseData }) {
         ? tableContainer.scrollWidth
         : node.scrollWidth
     );
-
-    const style = window.getComputedStyle(node);
-    const padLeft = parseFloat(style.paddingLeft) || 0;
+    const style    = window.getComputedStyle(node);
+    const padLeft  = parseFloat(style.paddingLeft)  || 0;
     const padRight = parseFloat(style.paddingRight) || 0;
     const fullWidth = Math.ceil(tableWidth + padLeft + padRight);
 
@@ -103,23 +95,22 @@ function MyAreaReport({ userArea, areaWiseData }) {
       scrollX: 0,
       scrollY: 0,
       onclone: (clonedDoc) => {
-        // Force the cloned report to render at full width with no scroll clipping
         const clonedCapture = clonedDoc.querySelector('.my-area-capture');
         if (clonedCapture) {
-          clonedCapture.style.width = fullWidth + 'px';
-          clonedCapture.style.maxWidth = 'none';
-          clonedCapture.style.boxSizing = 'border-box';
+          clonedCapture.style.width      = fullWidth + 'px';
+          clonedCapture.style.maxWidth   = 'none';
+          clonedCapture.style.boxSizing  = 'border-box';
         }
         const clonedContainer = clonedDoc.querySelector('.my-area-table-container');
         if (clonedContainer) {
-          clonedContainer.style.overflow = 'visible';
-          clonedContainer.style.overflowX = 'visible';
-          clonedContainer.style.maxWidth = 'none';
-          clonedContainer.style.width = tableWidth + 'px';
+          clonedContainer.style.overflow    = 'visible';
+          clonedContainer.style.overflowX   = 'visible';
+          clonedContainer.style.maxWidth    = 'none';
+          clonedContainer.style.width       = tableWidth + 'px';
         }
         const clonedTable = clonedDoc.querySelector('.my-area-table');
         if (clonedTable) {
-          clonedTable.style.width = tableWidth + 'px';
+          clonedTable.style.width    = tableWidth + 'px';
           clonedTable.style.minWidth = tableWidth + 'px';
         }
       },
@@ -127,7 +118,7 @@ function MyAreaReport({ userArea, areaWiseData }) {
   };
 
   const getFileName = () => {
-    const date = new Date().toISOString().split('T')[0];
+    const date     = new Date().toISOString().split('T')[0];
     const safeArea = userArea.replace(/[^a-zA-Z0-9]/g, '_');
     return `My_Area_Report_${safeArea}_${date}.png`;
   };
@@ -136,23 +127,21 @@ function MyAreaReport({ userArea, areaWiseData }) {
     if (!captureRef.current) return;
     setSharing(true);
     try {
-      const canvas = await generateCanvas();
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+      const canvas   = await generateCanvas();
+      const blob     = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       const fileName = getFileName();
-      const file = new File([blob], fileName, { type: 'image/png' });
+      const file     = new File([blob], fileName, { type: 'image/png' });
 
-      // Try native share (works on mobile - WhatsApp, etc.)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
           title: `My Area Report: ${userArea}`,
-          text: `📍 My Area Report: ${userArea}`,
+          text:  `📍 My Area Report: ${userArea}`,
         });
       } else {
-        // Fallback: download the image
-        const url = URL.createObjectURL(blob);
+        const url  = URL.createObjectURL(blob);
         const link = document.createElement('a');
-        link.href = url;
+        link.href  = url;
         link.download = fileName;
         link.click();
         URL.revokeObjectURL(url);
@@ -172,9 +161,9 @@ function MyAreaReport({ userArea, areaWiseData }) {
     setSharing(true);
     try {
       const canvas = await generateCanvas();
-      const url = canvas.toDataURL('image/png');
-      const link = document.createElement('a');
-      link.href = url;
+      const url    = canvas.toDataURL('image/png');
+      const link   = document.createElement('a');
+      link.href     = url;
       link.download = getFileName();
       link.click();
     } catch (error) {
@@ -183,6 +172,13 @@ function MyAreaReport({ userArea, areaWiseData }) {
     } finally {
       setSharing(false);
     }
+  };
+
+  // Badge class for today's collected value
+  const todayBadgeClass = (val) => {
+    if (val < 0)   return 'today-collected-badge collected-down';
+    if (val < 10)  return 'today-collected-badge collected-warn';
+    return 'today-collected-badge collected-up';
   };
 
   return (
@@ -205,6 +201,7 @@ function MyAreaReport({ userArea, areaWiseData }) {
           <span className="capture-date">{new Date().toLocaleDateString('en-GB')}</span>
         </div>
 
+        {/* Summary stat boxes */}
         <div className="my-area-stats">
           <div className="stat-box">
             <div className="stat-box-label">Total Plazas</div>
@@ -214,6 +211,15 @@ function MyAreaReport({ userArea, areaWiseData }) {
             <div className="stat-box-label">Card Collected</div>
             <div className="stat-box-value">{formatNumber(totalCollectedQty)}</div>
           </div>
+          {/* Today's Collected summary stat — shown for all areas once data loads */}
+          {hasYesterdayData && (
+            <div className="stat-box">
+              <div className="stat-box-label">Today's Collected</div>
+              <div className={`stat-box-value ${totalTodayCollected >= 0 ? 'value-up' : 'value-down'}`}>
+                {totalTodayCollected > 0 ? '+' : ''}{formatNumber(totalTodayCollected)}
+              </div>
+            </div>
+          )}
           <div className="stat-box">
             <div className="stat-box-label">Qty Achieved</div>
             <div className="stat-box-value">{qtyPercent}%</div>
@@ -240,7 +246,10 @@ function MyAreaReport({ userArea, areaWiseData }) {
                 <th>Target Qty</th>
                 <th>Ach. Qty</th>
                 <th>Qty %</th>
-                {isTangailUser && <th className="today-collected-header">Today's Collected</th>}
+                {/* Today's Collected column — shown for all users */}
+                <th className="today-collected-header">
+                  {loadingYesterday ? '⏳ Today' : "Today's Collected"}
+                </th>
                 <th>Target Amt</th>
                 <th>Ach. Amt</th>
                 <th>Amt %</th>
@@ -251,9 +260,11 @@ function MyAreaReport({ userArea, areaWiseData }) {
             </thead>
             <tbody>
               {myAreaData.map((plaza, index) => {
-                const overdueChange = parseFloat(plaza.Running_Overdue || 0) - parseFloat(plaza.Previous_Overdue || 0);
-                const yesterdayQty = yesterdayPlazaData[plaza.Plaza] || 0;
-                const todayCollected = parseFloat(plaza.Collected_Acc_Qty || 0) - yesterdayQty;
+                const plazaOverdueChange = parseFloat(plaza.Running_Overdue || 0) - parseFloat(plaza.Previous_Overdue || 0);
+                const yesterdayQty       = yesterdayPlazaData[plaza.Plaza] || 0;
+                const todayCollected     = calcTodayCollected(plaza.Collected_Acc_Qty, yesterdayQty);
+                const noYesterdayRecord  = !yesterdayPlazaData[plaza.Plaza];
+
                 return (
                   <tr key={index}>
                     <td>{plaza.Division}</td>
@@ -261,44 +272,61 @@ function MyAreaReport({ userArea, areaWiseData }) {
                     <td className="plaza-name-cell">{plaza.Plaza}</td>
                     <td className="number-cell">{formatNumber(plaza.Collectible_Acc_Qty)}</td>
                     <td className="number-cell">{formatNumber(plaza.Collected_Acc_Qty)}</td>
-                    <td className="number-cell"><span className="percent-badge">{plaza.Collection_Qty_Percent}%</span></td>
-                    {isTangailUser && (
-                      <td className="number-cell today-collected-cell-warn">
-                        <span className={`today-collected-badge ${todayCollected < 10 ? 'collected-warn' : todayCollected > 0 ? 'collected-up' : todayCollected < 0 ? 'collected-down' : ''}`}>
+                    <td className="number-cell">
+                      <span className="percent-badge">{plaza.Collection_Qty_Percent}%</span>
+                    </td>
+                    <td className="number-cell today-collected-cell-warn">
+                      {loadingYesterday ? (
+                        <span className="today-collected-badge">—</span>
+                      ) : noYesterdayRecord ? (
+                        <span className="today-collected-badge collected-new" title="No yesterday baseline yet">N/A</span>
+                      ) : (
+                        <span className={todayBadgeClass(todayCollected)}>
                           {todayCollected > 0 ? '+' : ''}{formatNumber(todayCollected)}
                         </span>
-                      </td>
-                    )}
+                      )}
+                    </td>
                     <td className="number-cell">{formatNumber(plaza.Collectible_Amount)}</td>
                     <td className="number-cell">{formatNumber(plaza.Collected_Amount)}</td>
-                    <td className="number-cell"><span className="percent-badge">{plaza.Collection_Amt_Percent}%</span></td>
+                    <td className="number-cell">
+                      <span className="percent-badge">{plaza.Collection_Amt_Percent}%</span>
+                    </td>
                     <td className="number-cell">{formatNumber(plaza.Previous_Overdue)}</td>
                     <td className="number-cell">{formatNumber(plaza.Running_Overdue)}</td>
                     <td className="number-cell">
-                      <span className={`change-badge ${overdueChange > 0 ? 'change-up' : 'change-down'}`}>
-                        {overdueChange > 0 ? '▲' : '▼'} {formatNumber(Math.abs(overdueChange))}
+                      <span className={`change-badge ${plazaOverdueChange > 0 ? 'change-up' : 'change-down'}`}>
+                        {plazaOverdueChange > 0 ? '▲' : '▼'} {formatNumber(Math.abs(plazaOverdueChange))}
                       </span>
                     </td>
                   </tr>
                 );
               })}
+
               {/* Area Subtotal Row */}
               <tr className="subtotal-row">
                 <td></td>
-                <td colSpan="2" className="subtotal-label">{userArea} - SUBTOTAL</td>
+                <td colSpan="2" className="subtotal-label">{userArea} — SUBTOTAL</td>
                 <td className="number-cell">{formatNumber(totalCollectibleQty)}</td>
                 <td className="number-cell">{formatNumber(totalCollectedQty)}</td>
-                <td className="number-cell"><span className="percent-badge">{qtyPercent}%</span></td>
-                {isTangailUser && (
-                  <td className="number-cell today-collected-cell-warn">
-                    <span className={`today-collected-badge ${totalTodayCollected < 10 ? 'collected-warn' : totalTodayCollected > 0 ? 'collected-up' : totalTodayCollected < 0 ? 'collected-down' : ''}`}>
+                <td className="number-cell">
+                  <span className="percent-badge">{qtyPercent}%</span>
+                </td>
+                <td className="number-cell today-collected-cell-warn">
+                  {loadingYesterday ? (
+                    <span className="today-collected-badge">—</span>
+                  ) : !hasYesterdayData ? (
+                    <span className="today-collected-badge collected-new">N/A</span>
+                  ) : (
+                    <span className={todayBadgeClass(totalTodayCollected)}>
                       {totalTodayCollected > 0 ? '+' : ''}{formatNumber(totalTodayCollected)}
                     </span>
-                  </td>
-                )}
+                  )}
+                </td>
                 <td className="number-cell">{formatNumber(totalCollectibleAmt)}</td>
                 <td className="number-cell">{formatNumber(totalCollectedAmt)}</td>
-                <td className="number-cell"><span className="percent-badge">{amtPercent}%</span></td>
+                <td className="number-cell">
+                  <span className="percent-badge">{amtPercent}%</span>
+                </td>
                 <td className="number-cell">{formatNumber(totalPrevOverdue)}</td>
                 <td className="number-cell">{formatNumber(totalRunOverdue)}</td>
                 <td className="number-cell">

@@ -155,3 +155,164 @@ export const getYesterdayTangailPlazaData = async () => {
     return {};
   }
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ALL-AREA universal plaza daily collection
+// Table: all_plaza_daily
+//   date          DATE        (YYYY-MM-DD)
+//   area_name     TEXT
+//   plaza_name    TEXT
+//   collected_qty INTEGER
+//   PRIMARY KEY (date, area_name, plaza_name)
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Save all-area plaza collection data to Supabase.
+ * Call this on every file upload so that tomorrow's upload can compare.
+ *
+ * @param {Array<{area: string, plaza: string, collectedQty: number}>} plazaRecords
+ * @returns {Promise<boolean>}
+ */
+export const saveAllPlazaDailyCollection = async (plazaRecords) => {
+  if (!plazaRecords || plazaRecords.length === 0) return false;
+
+  try {
+    // Always store as yesterday's date so that tomorrow's upload fetch
+    // (which queries yesterday) finds this data immediately.
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0]; // YYYY-MM-DD
+
+    // Step 1: Delete ALL existing rows for yesterday — full replacement.
+    const deleteResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/all_plaza_daily?date=eq.${yesterdayStr}`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+      }
+    );
+
+    if (!deleteResp.ok) {
+      const text = await deleteResp.text();
+      console.error('saveAllPlazaDailyCollection delete error:', text);
+      return false;
+    }
+
+    // Step 2: Insert fresh records with yesterday's date.
+    const records = plazaRecords.map(p => ({
+      date: yesterdayStr,
+      area_name: p.area,
+      plaza_name: p.plaza,
+      collected_qty: parseInt(p.collectedQty) || 0,
+    }));
+
+    const insertResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/all_plaza_daily`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(records),
+      }
+    );
+
+    if (!insertResp.ok) {
+      const text = await insertResp.text();
+      console.error('saveAllPlazaDailyCollection insert error:', text);
+    }
+    return insertResp.ok;
+  } catch (error) {
+    console.error('Failed to save all-plaza daily data:', error);
+    return false;
+  }
+};
+
+/**
+ * Fetch yesterday's all-area plaza collection from Supabase.
+ * Returns a nested lookup: { [areaName]: { [plazaName]: collectedQty } }
+ *
+ * @returns {Promise<Object>}
+ */
+export const getYesterdayAllPlazaCollection = async () => {
+  try {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/all_plaza_daily?date=eq.${yesterdayStr}&select=area_name,plaza_name,collected_qty`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+
+    if (!response.ok) return {};
+
+    const data = await response.json();
+
+    // Build nested lookup  { area -> { plaza -> qty } }
+    const result = {};
+    data.forEach(record => {
+      if (!result[record.area_name]) result[record.area_name] = {};
+      result[record.area_name][record.plaza_name] = record.collected_qty;
+    });
+    return result;
+  } catch (error) {
+    console.error('Failed to fetch yesterday all-plaza data:', error);
+    return {};
+  }
+};
+
+/**
+ * Convenience flat-lookup version for a single area.
+ * Returns { [plazaName]: collectedQty } — mirrors getYesterdayTangailPlazaData shape.
+ *
+ * @param {string} areaName
+ * @returns {Promise<Object>}
+ */
+export const getYesterdayPlazaCollectionForArea = async (areaName) => {
+  try {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    const encoded = encodeURIComponent(areaName);
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/all_plaza_daily?date=eq.${yesterdayStr}&area_name=eq.${encoded}&select=plaza_name,collected_qty`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+
+    if (!response.ok) return {};
+
+    const data = await response.json();
+    const result = {};
+    data.forEach(record => {
+      result[record.plaza_name] = record.collected_qty;
+    });
+    return result;
+  } catch (error) {
+    console.error(`Failed to fetch yesterday plaza data for area "${areaName}":`, error);
+    return {};
+  }
+};

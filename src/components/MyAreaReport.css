@@ -408,3 +408,10 @@
     font-size: 0.7rem;
   }
 }
+
+/* N/A state — no yesterday baseline recorded yet */
+.today-collected-badge.collected-new {
+  background: #f0f4f8;
+  color: #718096;
+  font-style: italic;
+}
