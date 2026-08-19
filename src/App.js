@@ -606,6 +606,11 @@ function App() {
       return;
     }
 
+    if (user?.email !== 'thedigitaltimes24@gmail.com') {
+      alert('❌ Only the admin can save the baseline data.');
+      return;
+    }
+
     // ── All-area plaza records (for Today's Collected across every area) ──
     const allPlazaRecords = areaWiseData.filter(
       row => !row.isSubtotal && !row.isGrandTotal && row.Plaza
@@ -705,7 +710,7 @@ function App() {
         onScrollToStats={scrollToStatistics}
         showStatsButton={divisionData.length > 0}
         onSaveYesterdayData={handleSaveYesterdayData}
-        showSaveButton={areaWiseData.length > 0}
+        showSaveButton={areaWiseData.length > 0 && user?.email === 'thedigitaltimes24@gmail.com'}
         user={user}
         userArea={userArea}
         onSignOut={handleSignOut}
