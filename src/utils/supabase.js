@@ -3,6 +3,20 @@ const SUPABASE_URL = 'https://nseykgyfbakvthrymuoe.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zZXlrZ3lmYmFrdnRocnltdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NDU3MjksImV4cCI6MjA5MjQyMTcyOX0.zXkjvZb02qXCPl9nDSl-M64mfpOswhBsKFp_phZcOzA';
 
 /**
+ * Returns a YYYY-MM-DD string in the user's LOCAL timezone.
+ * Using toISOString() would give UTC which is wrong for Bangladesh (UTC+6) —
+ * before 6 AM local time the UTC date is still the previous day.
+ * @param {Date} date
+ * @returns {string}
+ */
+const localDateStr = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
+/**
  * Save today's Division-02 data to Supabase as yesterday's data
  * @param {Array} areaReports - Array of area data with name and collectedQty
  * @returns {Promise<boolean>} - Success status
@@ -12,7 +26,7 @@ export const saveTodayData = async (areaReports) => {
     // Save as yesterday's date for tomorrow's comparison
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const yesterdayStr = localDateStr(yesterday); // YYYY-MM-DD in local timezone
     
     const records = areaReports.map(area => ({
       date: yesterdayStr,
@@ -46,7 +60,7 @@ export const getYesterdayData = async () => {
   try {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const yesterdayStr = localDateStr(yesterday); // YYYY-MM-DD in local timezone
 
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/division02_daily?date=eq.${yesterdayStr}`,
@@ -89,7 +103,7 @@ export const saveTangailPlazaData = async (plazaReports) => {
     // Save as yesterday's date for tomorrow's comparison
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const yesterdayStr = localDateStr(yesterday); // YYYY-MM-DD in local timezone
     
     const records = plazaReports.map(plaza => ({
       date: yesterdayStr,
@@ -123,7 +137,7 @@ export const getYesterdayTangailPlazaData = async () => {
   try {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const yesterdayStr = localDateStr(yesterday); // YYYY-MM-DD in local timezone
 
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/tangail_plaza_daily?date=eq.${yesterdayStr}`,
@@ -181,7 +195,7 @@ export const saveAllPlazaDailyCollection = async (plazaRecords) => {
     // (which queries yesterday) finds this data immediately.
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0]; // YYYY-MM-DD
+    const yesterdayStr = localDateStr(yesterday); // YYYY-MM-DD in local timezone
 
     // Step 1: Delete ALL existing rows for yesterday — full replacement.
     const deleteResp = await fetch(
@@ -246,7 +260,7 @@ export const getYesterdayAllPlazaCollection = async () => {
   try {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterdayStr = localDateStr(yesterday);
 
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/all_plaza_daily?date=eq.${yesterdayStr}&select=area_name,plaza_name,collected_qty`,
@@ -288,7 +302,7 @@ export const getYesterdayPlazaCollectionForArea = async (areaName) => {
   try {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    const yesterdayStr = localDateStr(yesterday);
 
     const encoded = encodeURIComponent(areaName);
     const response = await fetch(
