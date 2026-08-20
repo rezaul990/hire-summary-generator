@@ -16,7 +16,7 @@ import OverdueStatistics from './components/OverdueStatistics';
 import AnalyticsSection from './components/AnalyticsSection';
 import AllAreasTodayReport from './components/AllAreasTodayReport';
 import { sendUploadNotification } from './utils/telegram';
-import { saveTodayData, saveTangailPlazaData, saveAllPlazaDailyCollection } from './utils/supabase';
+import { saveTodayData, saveTangailPlazaData, saveAllPlazaDailyCollection } from './utils/supabase'; // saveAllPlazaDailyCollection used by Save Yesterday button
 import { supabase } from './config/supabaseClient';
 
 function App() {
@@ -421,19 +421,11 @@ function App() {
       // Don't show error to user, just log it
     });
 
-    // Save today's per-plaza collected qty for ALL areas so every user gets
-    // a "Today's Collected" comparison on the next upload.
-    const allPlazaRecords = areaWiseSummary
-      .filter(row => !row.isSubtotal && !row.isGrandTotal && row.Plaza)
-      .map(row => ({
-        area: row.Area,
-        plaza: row.Plaza,
-        collectedQty: row.Collected_Acc_Qty || 0,
-      }));
-
-    saveAllPlazaDailyCollection(allPlazaRecords).catch(err => {
-      console.error('All-plaza daily save failed:', err);
-    });
+    // NOTE: Do NOT auto-save plaza data here.
+    // The "Save Yesterday's Data" button (admin only) is the correct
+    // mechanism to store the baseline. Auto-saving here would overwrite
+    // yesterday's baseline with today's numbers (same date key), causing
+    // "Today's Collected" to always show N/A.
   };
 
   const generateDivisionSummary = (grouped) => {
@@ -606,10 +598,6 @@ function App() {
       return;
     }
 
-    if (user?.email !== 'thedigitaltimes24@gmail.com') {
-      alert('❌ Only the admin can save the baseline data.');
-      return;
-    }
 
     // ── All-area plaza records (for Today's Collected across every area) ──
     const allPlazaRecords = areaWiseData.filter(
@@ -710,7 +698,7 @@ function App() {
         onScrollToStats={scrollToStatistics}
         showStatsButton={divisionData.length > 0}
         onSaveYesterdayData={handleSaveYesterdayData}
-        showSaveButton={areaWiseData.length > 0 && user?.email === 'thedigitaltimes24@gmail.com'}
+        showSaveButton={areaWiseData.length > 0}
         user={user}
         userArea={userArea}
         onSignOut={handleSignOut}
