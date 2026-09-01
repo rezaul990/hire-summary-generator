@@ -1,14 +1,15 @@
 .analytics-section {
   margin-top: 40px;
   padding: 30px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #1f1f1f;
   border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
 }
 
 .analytics-container h3 {
   text-align: center;
-  color: #333;
+  color: #ffffff;
   margin-bottom: 30px;
   font-size: 1.5rem;
   font-weight: 700;
@@ -30,7 +31,7 @@
 }
 
 .download-analytics-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #E50914;
   color: white;
   border: none;
   padding: 12px 25px;
@@ -39,12 +40,13 @@
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);
 }
 
 .download-analytics-btn:hover {
+  background: #b20710;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.5);
 }
 
 .download-analytics-btn:active {
@@ -52,11 +54,12 @@
 }
 
 .analytics-card {
-  background: white;
+  background: #2a2a2a;
   border-radius: 10px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   overflow: hidden;
+  border: 1px solid #333;
 }
 
 .analytics-header {
@@ -64,7 +67,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #E50914;
   color: white;
   cursor: pointer;
   transition: background 0.3s ease;
@@ -72,7 +75,7 @@
 }
 
 .analytics-header:hover {
-  background: linear-gradient(135deg, #5568d3 0%, #6a3a8f 100%);
+  background: #b20710;
 }
 
 .analytics-header h4 {
@@ -105,7 +108,7 @@
 .analytics-table {
   overflow-x: auto;
   border-radius: 8px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
 }
 
 .analytics-table table {
@@ -115,7 +118,7 @@
 }
 
 .analytics-table thead {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #E50914;
   color: white;
 }
 
@@ -123,13 +126,14 @@
   padding: 15px 12px;
   text-align: left;
   font-weight: 600;
-  border-bottom: 2px solid #667eea;
+  border-bottom: 2px solid #b20710;
 }
 
 .analytics-table td {
   padding: 12px;
-  border-bottom: 1px solid #e8e8e8;
-  color: #333;
+  border-bottom: 1px solid #333;
+  color: #e5e5e5;
+  background: #2a2a2a;
 }
 
 .analytics-table tbody tr {
@@ -137,11 +141,15 @@
 }
 
 .analytics-table tbody tr:hover {
-  background: #f8f9ff;
+  background: #333;
 }
 
-.analytics-table tbody tr:nth-child(even) {
-  background: #f5f7fa;
+.analytics-table tbody tr:hover td {
+  background: #333;
+}
+
+.analytics-table tbody tr:nth-child(even) td {
+  background: #242424;
 }
 
 .analytics-table .text-right {

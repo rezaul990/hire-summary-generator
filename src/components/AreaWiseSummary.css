@@ -3,7 +3,7 @@
 }
 
 .area-wise-section .section-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #E50914;
   color: white;
   padding: 20px 30px;
   border-radius: 12px 12px 0 0;
@@ -17,7 +17,7 @@
 }
 
 .collapsible-header:hover {
-  background: linear-gradient(135deg, #5568d3 0%, #6a3a8f 100%);
+  background: #b20710;
 }
 
 .header-title {
@@ -35,16 +35,16 @@
 
 .header-text h2 {
   margin: 0;
+  color: #ffffff;
 }
 
 .expand-instruction {
   margin: 0;
   font-size: 1rem;
-  color: #ffd700;
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 600;
   font-style: italic;
   animation: pulse 2s ease-in-out infinite;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   letter-spacing: 0.3px;
 }
 
@@ -53,7 +53,7 @@
     opacity: 1;
   }
   50% {
-    opacity: 0.7;
+    opacity: 0.65;
   }
 }
 
@@ -67,8 +67,10 @@
 .collapsible-content {
   animation: slideDown 0.3s ease;
   padding: 25px 30px 30px;
-  background: white;
+  background: #1f1f1f;
   border-radius: 0 0 12px 12px;
+  border: 1px solid #333;
+  border-top: none;
 }
 
 .collapsible-content.screenshot-container {
@@ -122,7 +124,7 @@
 }
 
 .screenshot-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #E50914;
   color: white;
   padding: 20px;
   border-radius: 8px;
@@ -199,7 +201,7 @@
 
 .filter-box label {
   font-weight: 600;
-  color: #333;
+  color: #b3b3b3;
   font-size: 0.95rem;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -207,33 +209,33 @@
 
 .filter-select {
   padding: 10px 15px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #333;
   border-radius: 8px;
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: white;
-  color: #333;
+  background: #2a2a2a;
+  color: #e5e5e5;
   font-weight: 500;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .filter-select:hover:not(:disabled) {
-  border-color: #667eea;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+  border-color: #E50914;
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.2);
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #E50914;
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15);
 }
 
 .filter-select:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
-  background: #f5f5f5;
+  background: #1a1a1a;
 }
 
 @media (max-width: 768px) {

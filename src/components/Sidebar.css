@@ -5,11 +5,11 @@
 }
 
 .sidebar-content {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1f1f1f;
   border-radius: 6px;
   padding: 8px 12px;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(255, 215, 0, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(229, 9, 20, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,7 +18,7 @@
 }
 
 .sidebar-title {
-  color: white;
+  color: #b3b3b3;
   font-size: 0.7rem;
   font-weight: 700;
   margin: 0;
@@ -33,13 +33,13 @@
 }
 
 .tool-card {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(229, 9, 20, 0.1);
   backdrop-filter: blur(10px);
   border-radius: 6px;
   padding: 6px 10px;
   text-align: center;
   transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(229, 9, 20, 0.25);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -58,41 +58,42 @@
 
 .tool-card:hover {
   transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(229, 9, 20, 0.2);
+  border-color: rgba(229, 9, 20, 0.5);
 }
 
 .tool-card.highlighted {
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-  border: 2px solid #fff;
-  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+  background: linear-gradient(135deg, #E50914 0%, #b20710 100%);
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 15px rgba(229, 9, 20, 0.5);
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
 .tool-card.highlighted:hover {
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.7);
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.7);
 }
 
 .tool-card.highlighted .tool-name {
-  color: #764ba2;
+  color: #ffffff;
   font-weight: 800;
 }
 
 .tool-card.highlighted .tool-link {
-  color: #764ba2;
+  color: #ffffff;
   font-weight: 700;
 }
 
 .tool-card.highlighted:hover .tool-link {
-  color: #667eea;
+  color: #ffcccc;
 }
 
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+    box-shadow: 0 4px 15px rgba(229, 9, 20, 0.5);
   }
   50% {
-    box-shadow: 0 4px 25px rgba(255, 215, 0, 0.8);
+    box-shadow: 0 4px 25px rgba(229, 9, 20, 0.8);
   }
 }
 
@@ -102,7 +103,7 @@
 }
 
 .tool-name {
-  color: #ffd700;
+  color: #E50914;
   font-size: 0.65rem;
   font-weight: 700;
   margin: 0;
@@ -114,7 +115,7 @@
 }
 
 .tool-link {
-  color: white;
+  color: #e5e5e5;
   text-decoration: none;
   font-weight: 600;
   font-size: 0.65rem;

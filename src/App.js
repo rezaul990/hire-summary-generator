@@ -15,8 +15,10 @@ import DailyComparison from './components/DailyComparison';
 import OverdueStatistics from './components/OverdueStatistics';
 import AnalyticsSection from './components/AnalyticsSection';
 import AllAreasTodayReport from './components/AllAreasTodayReport';
+import WhatsAppSettings from './components/WhatsAppSettings';
 import { sendUploadNotification } from './utils/telegram';
-import { saveTodayData, saveTangailPlazaData, saveAllPlazaDailyCollection } from './utils/supabase'; // saveAllPlazaDailyCollection used by Save Yesterday button
+import { sendWhatsAppUploadNotification } from './utils/whatsapp';
+import { saveTodayData, saveTangailPlazaData, saveAllPlazaDailyCollection } from './utils/supabase';
 import { supabase } from './config/supabaseClient';
 
 function App() {
@@ -421,6 +423,12 @@ function App() {
       // Don't show error to user, just log it
     });
 
+    // Send WhatsApp notification (combined report via WaSender API)
+    sendWhatsAppUploadNotification(areaWiseSummary).catch(err => {
+      console.error('WhatsApp notification failed:', err);
+      // Don't show error to user, just log it
+    });
+
     // NOTE: Do NOT auto-save plaza data here.
     // The "Save Yesterday's Data" button (admin only) is the correct
     // mechanism to store the baseline. Auto-saving here would overwrite
@@ -598,6 +606,10 @@ function App() {
       return;
     }
 
+    if (user?.email !== 'thedigitaltimes24@gmail.com') {
+      alert('❌ Only the admin can save the baseline data.');
+      return;
+    }
 
     // ── All-area plaza records (for Today's Collected across every area) ──
     const allPlazaRecords = areaWiseData.filter(
@@ -698,7 +710,7 @@ function App() {
         onScrollToStats={scrollToStatistics}
         showStatsButton={divisionData.length > 0}
         onSaveYesterdayData={handleSaveYesterdayData}
-        showSaveButton={areaWiseData.length > 0}
+        showSaveButton={areaWiseData.length > 0 && user?.email === 'thedigitaltimes24@gmail.com'}
         user={user}
         userArea={userArea}
         onSignOut={handleSignOut}
@@ -706,6 +718,11 @@ function App() {
       
       <div className="app-wrapper">
         <div className="container">
+          {/* WhatsApp Report Settings — superuser only (placed at very top) */}
+          {(user?.email?.toLowerCase() === 'digitaltimes24@gmail.com' || user?.email?.toLowerCase() === 'thedigitaltimes24@gmail.com') && (
+            <WhatsAppSettings />
+          )}
+
           <div className="instruction-box">
             <h3>📋 Instructions / নির্দেশনা</h3>
             <p>POS এ লগিন করে - Sales &gt; Reports &gt; Hire Acc Target & Ach &gt; Collection Tr. & Achv. Summary Report ডাউনলোড করে আপলোড করুন</p>
