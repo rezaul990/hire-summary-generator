@@ -1,18 +1,18 @@
 .my-area-report {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1f1f1f;
+  border: 1px solid rgba(229, 9, 20, 0.3);
   border-radius: 15px;
   padding: 25px;
   margin-bottom: 30px;
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
   animation: slideIn 0.5s ease-out;
 }
 
 .my-area-header h2 {
-  color: white;
+  color: #ffffff;
   margin: 0 0 20px 0;
   font-size: 1.8rem;
   font-weight: 700;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .my-area-header {
@@ -45,7 +45,7 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.25s ease;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
 }
 
 .share-btn {
@@ -60,25 +60,27 @@
 }
 
 .download-img-btn {
-  background: rgba(255, 255, 255, 0.95);
-  color: #4a5568;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e5e5;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .download-img-btn:hover:not(:disabled) {
-  background: white;
+  background: rgba(255, 255, 255, 0.2);
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .share-btn:disabled,
 .download-img-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
 
 .my-area-capture {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #141414;
+  border: 1px solid rgba(229, 9, 20, 0.3);
   border-radius: 12px;
   padding: 18px;
 }
@@ -89,24 +91,25 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  color: white;
+  color: #ffffff;
   font-size: 1.3rem;
   font-weight: 800;
   margin-bottom: 16px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .capture-date {
   font-size: 0.95rem;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(229, 9, 20, 0.2);
+  color: #e5e5e5;
   padding: 4px 12px;
   border-radius: 14px;
+  border: 1px solid rgba(229, 9, 20, 0.3);
 }
 
 .capture-footer {
   text-align: center;
-  color: rgba(255, 255, 255, 0.85);
+  color: #777;
   font-size: 0.8rem;
   font-weight: 600;
   margin-top: 16px;
@@ -121,9 +124,8 @@
 }
 
 .stat-box {
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: #2a2a2a;
+  border: 1px solid #333;
   border-radius: 12px;
   padding: 16px 12px;
   text-align: center;
@@ -132,11 +134,12 @@
 
 .stat-box:hover {
   transform: translateY(-3px);
-  background: rgba(255, 255, 255, 0.22);
+  background: #333;
+  border-color: rgba(229, 9, 20, 0.4);
 }
 
 .stat-box-label {
-  color: rgba(255, 255, 255, 0.85);
+  color: #b3b3b3;
   font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -145,10 +148,9 @@
 }
 
 .stat-box-value {
-  color: white;
+  color: #ffffff;
   font-size: 1.5rem;
   font-weight: 800;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .stat-box-value.value-up {
@@ -156,14 +158,15 @@
 }
 
 .stat-box-value.value-down {
-  color: #4ade80;
+  color: #46d369;
 }
 
 .my-area-table-container {
-  background: white;
+  background: #1f1f1f;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
 }
 
 .my-area-table {
@@ -173,7 +176,7 @@
 }
 
 .my-area-table thead {
-  background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+  background: #E50914;
   color: white;
 }
 
@@ -182,7 +185,7 @@
   text-align: center;
   font-weight: 600;
   font-size: 0.85rem;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
   white-space: nowrap;
 }
 
@@ -191,19 +194,20 @@
 }
 
 .my-area-table tbody tr {
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #2a2a2a;
   transition: background-color 0.2s ease;
 }
 
 .my-area-table tbody tr:hover {
-  background-color: #f7fafc;
+  background-color: #2a2a2a;
 }
 
 .my-area-table tbody td {
   padding: 10px;
   text-align: center;
-  color: #2d3748;
+  color: #e5e5e5;
   font-size: 0.85rem;
+  background: #1f1f1f;
 }
 
 .my-area-table tbody td:first-child,
@@ -215,7 +219,7 @@
 .plaza-name-cell {
   text-align: left !important;
   font-weight: 500;
-  color: #2c5282;
+  color: #b3b3b3;
 }
 
 .number-cell {
@@ -228,10 +232,11 @@
   display: inline-block;
   padding: 3px 10px;
   border-radius: 12px;
-  background: #ebf4ff;
-  color: #2c5282;
+  background: rgba(229, 9, 20, 0.15);
+  color: #ffaaaa;
   font-weight: 600;
   font-size: 0.8rem;
+  border: 1px solid rgba(229, 9, 20, 0.25);
 }
 
 .change-badge {
@@ -247,14 +252,16 @@
 
 /* Overdue increased (positive change) = bad = red */
 .change-badge.change-up {
-  background: #fde8e8;
-  color: #c53030;
+  background: rgba(229, 9, 20, 0.2);
+  color: #ff8080;
+  border: 1px solid rgba(229, 9, 20, 0.3);
 }
 
 /* Overdue decreased (negative change) = good = green */
 .change-badge.change-down {
-  background: #e6f9ed;
-  color: #1f9d55;
+  background: rgba(70, 211, 105, 0.15);
+  color: #46d369;
+  border: 1px solid rgba(70, 211, 105, 0.25);
 }
 
 .today-collected-badge {
@@ -264,82 +271,88 @@
   font-weight: 700;
   font-size: 0.8rem;
   white-space: nowrap;
-  background: #f0f4f8;
-  color: #4a5568;
+  background: #2a2a2a;
+  color: #b3b3b3;
+  border: 1px solid #444;
 }
 
 .today-collected-badge.collected-up {
-  background: #e6f9ed;
-  color: #1f9d55;
+  background: rgba(70, 211, 105, 0.15);
+  color: #46d369;
+  border: 1px solid rgba(70, 211, 105, 0.25);
 }
 
 .today-collected-badge.collected-down {
-  background: #fde8e8;
-  color: #c53030;
+  background: rgba(229, 9, 20, 0.15);
+  color: #ff8080;
+  border: 1px solid rgba(229, 9, 20, 0.25);
 }
 
 .today-collected-badge.collected-warn {
-  background: #fde8e8;
-  color: #c53030;
+  background: rgba(229, 9, 20, 0.2);
+  color: #ff4444;
+  border: 1px solid rgba(229, 9, 20, 0.4);
   font-weight: 800;
 }
 
 .today-collected-cell-warn {
-  border-left: 2px solid #e53e3e;
-  border-right: 2px solid #e53e3e;
-  background: #fff5f5;
+  border-left: 2px solid #E50914;
+  border-right: 2px solid #E50914;
+  background: rgba(229, 9, 20, 0.05) !important;
 }
 
 .subtotal-row .today-collected-cell-warn {
-  border-bottom: 2px solid #e53e3e;
+  border-bottom: 2px solid #E50914;
 }
 
 .today-collected-header {
-  border-left: 2px solid #e53e3e !important;
-  border-right: 2px solid #e53e3e !important;
-  border-top: 2px solid #e53e3e !important;
-  background: #c53030 !important;
+  border-left: 2px solid #b20710 !important;
+  border-right: 2px solid #b20710 !important;
+  border-top: 2px solid #b20710 !important;
+  background: #b20710 !important;
 }
 
 .negative-change {
-  color: #e53e3e;
+  color: #ff6b6b;
   font-weight: 700;
 }
 
 .positive-change {
-  color: #38a169;
+  color: #46d369;
   font-weight: 700;
 }
 
 .subtotal-row {
-  background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+  background: #2a2a2a;
   font-weight: 700;
-  border-top: 2px solid #4a5568;
-  border-bottom: 2px solid #4a5568;
+  border-top: 2px solid #E50914;
+  border-bottom: 2px solid #E50914;
 }
 
 .subtotal-row td {
   padding: 12px 10px;
   font-weight: 700;
-  color: #2d3748;
+  color: #e5e5e5;
+  background: #2a2a2a !important;
 }
 
 .subtotal-label {
   text-align: left !important;
-  color: #2c5282;
+  color: #E50914;
   font-size: 0.9rem;
 }
 
 .no-data-message {
-  background: rgba(255, 255, 255, 0.95);
+  background: #1f1f1f;
   border-radius: 12px;
   padding: 40px;
   text-align: center;
   margin-top: 20px;
+  border: 1px solid #333;
 }
 
 .no-data-message p {
-  color: #666;
+  color: #777;
   font-size: 1.1rem;
   margin: 0;
 }
@@ -411,7 +424,8 @@
 
 /* N/A state — no yesterday baseline recorded yet */
 .today-collected-badge.collected-new {
-  background: #f0f4f8;
-  color: #718096;
+  background: #2a2a2a;
+  color: #666;
   font-style: italic;
+  border: 1px solid #444;
 }

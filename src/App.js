@@ -15,7 +15,9 @@ import DailyComparison from './components/DailyComparison';
 import OverdueStatistics from './components/OverdueStatistics';
 import AnalyticsSection from './components/AnalyticsSection';
 import AllAreasTodayReport from './components/AllAreasTodayReport';
+import WhatsAppSettings from './components/WhatsAppSettings';
 import { sendUploadNotification } from './utils/telegram';
+import { sendWhatsAppUploadNotification } from './utils/whatsapp';
 import { saveTodayData, saveTangailPlazaData, saveAllPlazaDailyCollection } from './utils/supabase';
 import { supabase } from './config/supabaseClient';
 
@@ -421,19 +423,17 @@ function App() {
       // Don't show error to user, just log it
     });
 
-    // Save today's per-plaza collected qty for ALL areas so every user gets
-    // a "Today's Collected" comparison on the next upload.
-    const allPlazaRecords = areaWiseSummary
-      .filter(row => !row.isSubtotal && !row.isGrandTotal && row.Plaza)
-      .map(row => ({
-        area: row.Area,
-        plaza: row.Plaza,
-        collectedQty: row.Collected_Acc_Qty || 0,
-      }));
-
-    saveAllPlazaDailyCollection(allPlazaRecords).catch(err => {
-      console.error('All-plaza daily save failed:', err);
+    // Send WhatsApp notification (combined report via WaSender API)
+    sendWhatsAppUploadNotification(areaWiseSummary).catch(err => {
+      console.error('WhatsApp notification failed:', err);
+      // Don't show error to user, just log it
     });
+
+    // NOTE: Do NOT auto-save plaza data here.
+    // The "Save Yesterday's Data" button (admin only) is the correct
+    // mechanism to store the baseline. Auto-saving here would overwrite
+    // yesterday's baseline with today's numbers (same date key), causing
+    // "Today's Collected" to always show N/A.
   };
 
   const generateDivisionSummary = (grouped) => {
@@ -718,6 +718,11 @@ function App() {
       
       <div className="app-wrapper">
         <div className="container">
+          {/* WhatsApp Report Settings — superuser only (placed at very top) */}
+          {(user?.email?.toLowerCase() === 'digitaltimes24@gmail.com' || user?.email?.toLowerCase() === 'thedigitaltimes24@gmail.com') && (
+            <WhatsAppSettings />
+          )}
+
           <div className="instruction-box">
             <h3>📋 Instructions / নির্দেশনা</h3>
             <p>POS এ লগিন করে - Sales &gt; Reports &gt; Hire Acc Target & Ach &gt; Collection Tr. & Achv. Summary Report ডাউনলোড করে আপলোড করুন</p>

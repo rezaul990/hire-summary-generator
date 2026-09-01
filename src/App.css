@@ -9,6 +9,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  background: #141414;
 }
 
 .app-wrapper {
@@ -41,16 +42,16 @@
 }
 
 .instruction-box {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #1f1f1f;
   border-radius: 6px;
   padding: 8px 15px;
   margin-bottom: 10px;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
-  border: 1px solid rgba(255, 215, 0, 0.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(229, 9, 20, 0.5);
 }
 
 .instruction-box h3 {
-  color: white;
+  color: #E50914;
   margin: 0 0 5px 0;
   font-size: 0.75rem;
   font-weight: 700;
@@ -58,7 +59,7 @@
 }
 
 .instruction-box p {
-  color: white;
+  color: #b3b3b3;
   margin: 0;
   font-size: 0.7rem;
   line-height: 1.3;

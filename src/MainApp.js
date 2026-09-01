@@ -14,6 +14,7 @@ import DailyComparison from './components/DailyComparison';
 import OverdueStatistics from './components/OverdueStatistics';
 import AnalyticsSection from './components/AnalyticsSection';
 import { sendUploadNotification } from './utils/telegram';
+import { sendWhatsAppUploadNotification } from './utils/whatsapp';
 import { saveTodayData, saveTangailPlazaData } from './utils/supabase';
 import { supabase } from './config/supabaseClient';
 
@@ -416,6 +417,12 @@ function App() {
     // Send Telegram notification with usage tracking and Tangail report
     sendUploadNotification(areaWiseSummary).catch(err => {
       console.error('Telegram notification failed:', err);
+      // Don't show error to user, just log it
+    });
+
+    // Send WhatsApp notification (combined report via WaSender API)
+    sendWhatsAppUploadNotification(areaWiseSummary).catch(err => {
+      console.error('WhatsApp notification failed:', err);
       // Don't show error to user, just log it
     });
   };

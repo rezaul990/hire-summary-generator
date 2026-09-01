@@ -1,10 +1,11 @@
 .about-page {
   min-height: 100vh;
-  background: #f7fafc;
+  background: #141414;
 }
 
 .about-hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0a0a0a;
+  border-bottom: 3px solid #E50914;
   color: white;
   padding: 100px 40px 80px;
   text-align: center;
@@ -14,6 +15,7 @@
   font-size: 3rem;
   font-weight: 800;
   margin-bottom: 20px;
+  color: #ffffff;
 }
 
 .lead {
@@ -21,7 +23,7 @@
   line-height: 1.6;
   max-width: 700px;
   margin: 0 auto;
-  opacity: 0.95;
+  color: #b3b3b3;
 }
 
 .about-content {
@@ -31,23 +33,24 @@
 .about-section {
   max-width: 900px;
   margin: 0 auto 60px;
-  background: white;
+  background: #1f1f1f;
   padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
 }
 
 .about-section h2 {
   font-size: 2rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #ffffff;
   margin-bottom: 20px;
 }
 
 .about-section p {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: #4a5568;
+  color: #b3b3b3;
   margin-bottom: 16px;
 }
 
@@ -62,14 +65,15 @@
   text-align: center;
   padding: 20px;
   border-radius: 8px;
-  border: 2px solid #e2e8f0;
+  border: 1px solid #333;
+  background: #2a2a2a;
   transition: all 0.3s ease;
 }
 
 .capability-item:hover {
-  border-color: #667eea;
+  border-color: #E50914;
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 5px 15px rgba(229, 9, 20, 0.15);
 }
 
 .capability-icon {
@@ -80,13 +84,13 @@
 .capability-item h3 {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #2d3748;
+  color: #ffffff;
   margin-bottom: 8px;
 }
 
 .capability-item p {
   font-size: 0.95rem;
-  color: #4a5568;
+  color: #b3b3b3;
   margin: 0;
 }
 
@@ -99,7 +103,7 @@
 .why-list li {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: #4a5568;
+  color: #b3b3b3;
   padding: 12px 0 12px 30px;
   position: relative;
 }
@@ -108,27 +112,26 @@
   content: "✓";
   position: absolute;
   left: 0;
-  color: #48bb78;
+  color: #46d369;
   font-weight: bold;
   font-size: 1.3rem;
 }
 
 .team-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: #0a0a0a;
+  border: 1px solid #333;
 }
 
 .team-section h2 {
-  color: white;
+  color: #ffffff;
 }
 
 .team-card {
   text-align: center;
   padding: 30px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #1f1f1f;
+  border-radius: 8px;
+  border: 1px solid #333;
   margin-top: 30px;
 }
 
@@ -141,23 +144,21 @@
   font-size: 1.8rem;
   font-weight: 700;
   margin-bottom: 8px;
-  color: white;
+  color: #ffffff;
 }
 
 .team-role {
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 20px;
-  opacity: 0.9;
-  color: white !important;
+  color: #E50914 !important;
 }
 
 .team-bio {
   font-size: 1.1rem;
   line-height: 1.8;
   margin-bottom: 25px;
-  color: white !important;
-  opacity: 0.95;
+  color: #b3b3b3 !important;
 }
 
 .team-contact {
@@ -169,17 +170,18 @@
 
 .team-contact a {
   padding: 12px 30px;
-  background: white;
-  color: #667eea;
+  background: #E50914;
+  color: white;
   text-decoration: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .team-contact a:hover {
+  background: #b20710;
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 5px 15px rgba(229, 9, 20, 0.35);
 }
 
 @media (max-width: 768px) {

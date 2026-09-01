@@ -1,10 +1,11 @@
 .contact-page {
   min-height: 100vh;
-  background: #f7fafc;
+  background: #141414;
 }
 
 .contact-hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0a0a0a;
+  border-bottom: 3px solid #E50914;
   color: white;
   padding: 100px 40px 80px;
   text-align: center;
@@ -14,6 +15,7 @@
   font-size: 3rem;
   font-weight: 800;
   margin-bottom: 20px;
+  color: #ffffff;
 }
 
 .contact-content {
@@ -32,15 +34,16 @@
 .contact-info-section h2 {
   font-size: 2rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #ffffff;
   margin-bottom: 30px;
 }
 
 .contact-form {
-  background: white;
+  background: #1f1f1f;
   padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
 }
 
 .form-group {
@@ -51,7 +54,7 @@
   display: block;
   font-size: 1rem;
   font-weight: 600;
-  color: #2d3748;
+  color: #e5e5e5;
   margin-bottom: 8px;
 }
 
@@ -60,17 +63,19 @@
   width: 100%;
   padding: 14px 16px;
   font-size: 1rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
+  border: 2px solid #333;
+  border-radius: 6px;
   transition: all 0.3s ease;
   font-family: inherit;
+  background: #2a2a2a;
+  color: #ffffff;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #E50914;
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15);
 }
 
 .form-group textarea {
@@ -81,10 +86,10 @@
 .submit-btn {
   width: 100%;
   padding: 16px 30px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #E50914;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
@@ -96,8 +101,9 @@
 }
 
 .submit-btn:hover {
+  background: #b20710;
   transform: translateY(-2px);
-  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 5px 20px rgba(229, 9, 20, 0.4);
 }
 
 .submit-btn span {
@@ -111,16 +117,16 @@
 }
 
 .contact-info-card {
-  background: white;
+  background: #1f1f1f;
   padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
   transition: all 0.3s ease;
 }
 
 .contact-info-card:hover {
-  border-color: #667eea;
+  border-color: #E50914;
   transform: translateY(-2px);
 }
 
@@ -132,24 +138,24 @@
 .contact-info-card h3 {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #ffffff;
   margin-bottom: 8px;
 }
 
 .contact-info-card p {
   font-size: 1rem;
-  color: #4a5568;
+  color: #b3b3b3;
   margin-bottom: 12px;
 }
 
 .hours {
   font-weight: 600;
-  color: #2d3748;
+  color: #e5e5e5;
 }
 
 .info-link {
   display: inline-block;
-  color: #667eea;
+  color: #E50914;
   text-decoration: none;
   font-weight: 600;
   font-size: 1.1rem;
@@ -157,7 +163,7 @@
 }
 
 .info-link:hover {
-  color: #764ba2;
+  color: #ff4444;
   text-decoration: underline;
 }
 
@@ -165,13 +171,13 @@
   max-width: 1200px;
   margin: 0 auto;
   padding-top: 40px;
-  border-top: 2px solid #e2e8f0;
+  border-top: 1px solid #333;
 }
 
 .faq-section h2 {
   font-size: 2rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #ffffff;
   margin-bottom: 40px;
   text-align: center;
 }
@@ -183,30 +189,30 @@
 }
 
 .faq-item {
-  background: white;
+  background: #1f1f1f;
   padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
   transition: all 0.3s ease;
 }
 
 .faq-item:hover {
-  border-color: #667eea;
+  border-color: #E50914;
   transform: translateY(-2px);
 }
 
 .faq-item h3 {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #ffffff;
   margin-bottom: 12px;
 }
 
 .faq-item p {
   font-size: 1rem;
   line-height: 1.7;
-  color: #4a5568;
+  color: #b3b3b3;
 }
 
 @media (max-width: 992px) {

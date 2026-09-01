@@ -1,10 +1,11 @@
 .legal-page {
   min-height: 100vh;
-  background: #f7fafc;
+  background: #141414;
 }
 
 .legal-hero {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0a0a0a;
+  border-bottom: 3px solid #E50914;
   color: white;
   padding: 100px 40px 60px;
   text-align: center;
@@ -14,11 +15,12 @@
   font-size: 3rem;
   font-weight: 800;
   margin-bottom: 12px;
+  color: #ffffff;
 }
 
 .legal-date {
   font-size: 1.1rem;
-  opacity: 0.9;
+  color: #b3b3b3;
 }
 
 .legal-content {
@@ -31,26 +33,27 @@
 }
 
 .legal-section {
-  background: white;
+  background: #1f1f1f;
   padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
   margin-bottom: 30px;
+  border: 1px solid #333;
 }
 
 .legal-section h2 {
   font-size: 1.8rem;
   font-weight: 700;
-  color: #2d3748;
+  color: #ffffff;
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 3px solid #667eea;
+  border-bottom: 3px solid #E50914;
 }
 
 .legal-section h3 {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #2d3748;
+  color: #e5e5e5;
   margin-top: 25px;
   margin-bottom: 12px;
 }
@@ -58,7 +61,7 @@
 .legal-section p {
   font-size: 1.05rem;
   line-height: 1.8;
-  color: #4a5568;
+  color: #b3b3b3;
   margin-bottom: 16px;
 }
 
@@ -70,42 +73,43 @@
 .legal-section li {
   font-size: 1.05rem;
   line-height: 1.8;
-  color: #4a5568;
+  color: #b3b3b3;
   margin-bottom: 10px;
 }
 
 .legal-section strong {
-  color: #2d3748;
+  color: #e5e5e5;
   font-weight: 600;
 }
 
 .contact-info {
-  background: #f7fafc;
+  background: #2a2a2a;
   padding: 25px;
-  border-radius: 8px;
+  border-radius: 6px;
   margin-top: 20px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #E50914;
 }
 
 .contact-info p {
   margin-bottom: 10px;
   font-size: 1.05rem;
+  color: #b3b3b3;
 }
 
 .contact-info a {
-  color: #667eea;
+  color: #E50914;
   text-decoration: none;
   font-weight: 600;
 }
 
 .contact-info a:hover {
   text-decoration: underline;
-  color: #764ba2;
+  color: #ff4444;
 }
 
 .acknowledgment {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: #E50914;
+  border: none;
 }
 
 .acknowledgment h2 {

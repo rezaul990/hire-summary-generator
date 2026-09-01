@@ -1,9 +1,10 @@
 .summary-section {
-  background: white;
+  background: #1f1f1f;
   border-radius: 12px;
   padding: 30px;
   margin-bottom: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+  border: 1px solid #333;
   animation: fadeIn 0.6s ease-out;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -30,7 +31,7 @@
 }
 
 .screenshot-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #E50914;
   color: white;
   padding: 20px;
   border-radius: 8px;
@@ -75,7 +76,7 @@
 
 .section-header h2 {
   font-size: 1.8rem;
-  color: #333;
+  color: #ffffff;
   margin: 0;
   font-weight: 700;
   -webkit-font-smoothing: antialiased;
@@ -103,24 +104,26 @@
 }
 
 .download-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  background: #E50914;
+  box-shadow: 0 4px 15px rgba(229, 9, 20, 0.35);
 }
 
 .download-btn:hover {
+  background: #b20710;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+  box-shadow: 0 6px 20px rgba(229, 9, 20, 0.5);
 }
 
 .screenshot-btn {
   display: none;
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+  background: #333;
+  color: #e5e5e5;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .screenshot-btn:hover {
+  background: #444;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
 }
 
 .download-btn:active,
@@ -138,7 +141,7 @@
 
 .view-mode-container label {
   font-weight: 600;
-  color: #333;
+  color: #b3b3b3;
   font-size: 0.95rem;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -151,9 +154,9 @@
 
 .mode-btn {
   padding: 8px 16px;
-  border: 2px solid #e0e0e0;
-  background: white;
-  color: #333;
+  border: 2px solid #333;
+  background: #2a2a2a;
+  color: #b3b3b3;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -164,15 +167,15 @@
 }
 
 .mode-btn:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #E50914;
+  color: #E50914;
 }
 
 .mode-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #E50914;
   color: white;
   border-color: transparent;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(229, 9, 20, 0.35);
 }
 
 .filter-container {
@@ -193,7 +196,7 @@
 
 .filter-box label {
   font-weight: 600;
-  color: #333;
+  color: #b3b3b3;
   font-size: 0.95rem;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -201,33 +204,33 @@
 
 .filter-select {
   padding: 10px 15px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #333;
   border-radius: 8px;
   font-size: 0.95rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  background: white;
-  color: #333;
+  background: #2a2a2a;
+  color: #e5e5e5;
   font-weight: 500;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 .filter-select:hover:not(:disabled) {
-  border-color: #667eea;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+  border-color: #E50914;
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.2);
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #E50914;
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.15);
 }
 
 .filter-select:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
-  background: #f5f5f5;
+  background: #1a1a1a;
 }
 
 @keyframes fadeIn {
