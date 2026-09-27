@@ -272,3 +272,129 @@
     font-size: 0.78rem;
   }
 }
+
+/* ── Paste Target Panel ─────────────────────────────────────────────────────── */
+.tdr-paste-panel {
+  background: #1f1f1f;
+  border: 1.5px solid rgba(229, 9, 20, 0.4);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.tdr-paste-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.tdr-paste-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #E50914;
+}
+
+.tdr-paste-hint {
+  font-size: 0.82rem;
+  color: #b3b3b3;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.tdr-paste-hint strong {
+  color: #e5e5e5;
+}
+
+.tdr-paste-example {
+  background: #141414;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  color: #777;
+  font-family: 'Courier New', monospace;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.tdr-paste-textarea {
+  width: 100%;
+  background: #141414;
+  border: 1.5px solid #333;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  font-family: 'Courier New', monospace;
+  color: #e5e5e5;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.18s;
+  line-height: 1.6;
+  min-height: 180px;
+}
+
+.tdr-paste-textarea:focus {
+  border-color: #E50914;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.15);
+}
+
+.tdr-paste-textarea::placeholder {
+  color: #444;
+}
+
+/* ── Live parse preview ─────────────────────────────────────────────────────── */
+.tdr-paste-preview {
+  margin-top: 14px;
+  background: #141414;
+  border: 1px solid rgba(70, 211, 105, 0.25);
+  border-radius: 6px;
+  padding: 10px 12px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tdr-preview-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #46d369;
+  margin-bottom: 8px;
+}
+
+.tdr-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tdr-preview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.tdr-preview-name {
+  font-size: 0.8rem;
+  color: #b3b3b3;
+  flex: 1;
+}
+
+.tdr-preview-qty {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #E50914;
+  min-width: 40px;
+  text-align: right;
+}
+
+/* ── Panel footer ───────────────────────────────────────────────────────────── */
+.tdr-paste-footer {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}

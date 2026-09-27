@@ -5,15 +5,61 @@ import { getYesterdayTangailPlazaData, getTangailPlazaTargets, saveTangailPlazaT
 
 const ADMIN_EMAIL = 'thedigitaltimes24@gmail.com';
 
+// ── Parse pasted text into { plaza_name → target_qty } ──────────────────────
+// Accepts any of these formats per line:
+//   "Plaza Name   50"        (spaces/tabs between name and number)
+//   "Plaza Name\t50"
+//   "Plaza Name,50"
+//   "Plaza Name - 50"        (dash-separated)
+// The LAST token on the line that is a pure number is treated as the target.
+// Lines with no number are silently skipped.
+const parsePastedTargets = (text) => {
+  const result = {};
+  text.split('\n').forEach(line => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+
+    // Split on tab, comma, or 2+ spaces — try tab/comma first, else split last word
+    let parts;
+    if (trimmed.includes('\t')) {
+      parts = trimmed.split('\t').map(p => p.trim());
+    } else if (trimmed.includes(',')) {
+      parts = trimmed.split(',').map(p => p.trim());
+    } else {
+      // Split on 2+ whitespace characters
+      parts = trimmed.split(/\s{2,}/).map(p => p.trim());
+      // Fallback: split on last whitespace group
+      if (parts.length < 2) {
+        const lastSpace = trimmed.lastIndexOf(' ');
+        if (lastSpace === -1) return;
+        parts = [trimmed.slice(0, lastSpace).trim(), trimmed.slice(lastSpace + 1).trim()];
+      }
+    }
+
+    // Last non-empty part that is a number is the target
+    const numPart = [...parts].reverse().find(p => /^\d+$/.test(p.replace(/,/g, '')));
+    if (!numPart) return;
+
+    const qty = parseInt(numPart.replace(/,/g, ''), 10);
+    // Everything except the number part is the plaza name
+    const namePart = parts.slice(0, parts.lastIndexOf(numPart)).join(' ').trim()
+      || parts.filter(p => p !== numPart).join(' ').trim();
+
+    if (namePart) result[namePart] = qty;
+  });
+  return result;
+};
+
 function TangailDailyReport({ userArea, areaWiseData, user }) {
   const captureRef = useRef(null);
   const [sharing, setSharing] = useState(false);
   const [yesterdayPlazaData, setYesterdayPlazaData] = useState({});
-  const [plazaTargets, setPlazaTargets] = useState({});       // { [plaza_name]: target_qty }
-  const [editingTargets, setEditingTargets] = useState({});   // local input state while editing
-  const [isEditingTargets, setIsEditingTargets] = useState(false);
+  const [plazaTargets, setPlazaTargets] = useState({});   // { [plaza_name]: target_qty }
+  const [showPastePanel, setShowPastePanel] = useState(false);
+  const [pasteText, setPasteText] = useState('');
+  const [parsePreview, setParsePreview] = useState({}); // live preview of parsed result
   const [savingTargets, setSavingTargets] = useState(false);
-  const [saveMsg, setSaveMsg] = useState('');                  // success / error feedback
+  const [saveMsg, setSaveMsg] = useState('');
 
   const isTangailUser = userArea && userArea.toLowerCase().includes('tangail');
   const isAdmin = user?.email?.toLowerCase() === ADMIN_EMAIL;
@@ -79,54 +125,53 @@ function TangailDailyReport({ userArea, areaWiseData, user }) {
   // ── Row colour logic (same as before, based on ach) ───────────────────────
   const rowClass = ach => (ach < 10 ? 'tdr-row-red' : 'tdr-row-teal');
 
-  // ── Target editing ─────────────────────────────────────────────────────────
-  const handleEditStart = () => {
-    // Pre-fill inputs with current targets
-    const initial = {};
-    tangailPlazas.forEach(p => {
-      initial[p.Plaza] = plazaTargets[p.Plaza] ?? '';
-    });
-    setEditingTargets(initial);
-    setIsEditingTargets(true);
+  // ── Paste panel handlers ───────────────────────────────────────────────────
+  const handlePasteChange = (text) => {
+    setPasteText(text);
+    setParsePreview(parsePastedTargets(text));
+  };
+
+  const handleOpenPaste = () => {
+    // Pre-fill textarea with current targets so admin can just edit numbers
+    const lines = Object.entries(plazaTargets)
+      .map(([name, qty]) => `${name}\t${qty}`)
+      .join('\n');
+    setPasteText(lines);
+    setParsePreview(plazaTargets);
+    setShowPastePanel(true);
     setSaveMsg('');
   };
 
-  const handleEditCancel = () => {
-    setIsEditingTargets(false);
-    setEditingTargets({});
+  const handleClosePaste = () => {
+    setShowPastePanel(false);
+    setPasteText('');
+    setParsePreview({});
     setSaveMsg('');
-  };
-
-  const handleTargetChange = (plazaName, value) => {
-    setEditingTargets(prev => ({ ...prev, [plazaName]: value }));
   };
 
   const handleSaveTargets = async () => {
+    const parsed = parsePastedTargets(pasteText);
+    if (Object.keys(parsed).length === 0) {
+      setSaveMsg('❌ No valid entries found. Check format.');
+      return;
+    }
     setSavingTargets(true);
     setSaveMsg('');
-
-    const payload = Object.entries(editingTargets).map(([plaza_name, val]) => ({
+    const payload = Object.entries(parsed).map(([plaza_name, target_qty]) => ({
       plaza_name,
-      target_qty: parseInt(val) || 0,
+      target_qty,
     }));
-
     const ok = await saveTangailPlazaTargets(payload);
-
     if (ok) {
-      // Update local state so table refreshes immediately
-      const updated = {};
-      payload.forEach(({ plaza_name, target_qty }) => {
-        updated[plaza_name] = target_qty;
-      });
-      setPlazaTargets(updated);
-      setIsEditingTargets(false);
-      setEditingTargets({});
-      setSaveMsg('✅ Targets saved!');
-      setTimeout(() => setSaveMsg(''), 3000);
+      setPlazaTargets(parsed);
+      setShowPastePanel(false);
+      setPasteText('');
+      setParsePreview({});
+      setSaveMsg(`✅ ${payload.length} plaza targets saved!`);
+      setTimeout(() => setSaveMsg(''), 4000);
     } else {
       setSaveMsg('❌ Failed to save. Please try again.');
     }
-
     setSavingTargets(false);
   };
 
@@ -204,29 +249,10 @@ function TangailDailyReport({ userArea, areaWiseData, user }) {
       <div className="tdr-header">
         <h2>📍 Tangail Daily Report</h2>
         <div className="tdr-actions">
-          {/* Admin: set-target button */}
-          {isAdmin && !isEditingTargets && (
-            <button className="tdr-target-edit-btn" onClick={handleEditStart}>
+          {isAdmin && (
+            <button className="tdr-target-edit-btn" onClick={handleOpenPaste}>
               🎯 Set Targets
             </button>
-          )}
-          {isAdmin && isEditingTargets && (
-            <>
-              <button
-                className="tdr-target-save-btn"
-                onClick={handleSaveTargets}
-                disabled={savingTargets}
-              >
-                {savingTargets ? '💾 Saving…' : '💾 Save Targets'}
-              </button>
-              <button
-                className="tdr-target-cancel-btn"
-                onClick={handleEditCancel}
-                disabled={savingTargets}
-              >
-                ✕ Cancel
-              </button>
-            </>
           )}
           <button className="tdr-share-btn" onClick={handleShareImage} disabled={sharing}>
             <span>📤</span> {sharing ? 'Preparing...' : 'Share'}
@@ -241,6 +267,55 @@ function TangailDailyReport({ userArea, areaWiseData, user }) {
       {saveMsg && (
         <div className={`tdr-save-msg ${saveMsg.startsWith('✅') ? 'tdr-save-msg-ok' : 'tdr-save-msg-err'}`}>
           {saveMsg}
+        </div>
+      )}
+
+      {/* ── Paste Target Panel (admin only) ── */}
+      {isAdmin && showPastePanel && (
+        <div className="tdr-paste-panel">
+          <div className="tdr-paste-header">
+            <span className="tdr-paste-title">🎯 Paste Plaza Targets</span>
+            <button className="tdr-target-cancel-btn" onClick={handleClosePaste} disabled={savingTargets}>✕ Close</button>
+          </div>
+
+          <p className="tdr-paste-hint">
+            Paste one plaza per line — <strong>Plaza Name</strong> then <strong>Target Qty</strong> separated by a tab, comma, or 2+ spaces. Example:
+          </p>
+          <pre className="tdr-paste-example">{`Walton Plaza-Adalot Road, Tangail\t50\nWalton Plaza-Bashtoil, Mirzapur\t30`}</pre>
+
+          <textarea
+            className="tdr-paste-textarea"
+            value={pasteText}
+            onChange={e => handlePasteChange(e.target.value)}
+            placeholder={"Walton Plaza-Adalot Road, Tangail\t50\nWalton Plaza-Bashtoil, Mirzapur\t30"}
+            rows={10}
+            spellCheck={false}
+          />
+
+          {/* Live preview */}
+          {Object.keys(parsePreview).length > 0 && (
+            <div className="tdr-paste-preview">
+              <p className="tdr-preview-label">✅ Parsed {Object.keys(parsePreview).length} entries:</p>
+              <div className="tdr-preview-list">
+                {Object.entries(parsePreview).map(([name, qty]) => (
+                  <div key={name} className="tdr-preview-row">
+                    <span className="tdr-preview-name">{name}</span>
+                    <span className="tdr-preview-qty">{qty}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="tdr-paste-footer">
+            <button
+              className="tdr-target-save-btn"
+              onClick={handleSaveTargets}
+              disabled={savingTargets || Object.keys(parsePreview).length === 0}
+            >
+              {savingTargets ? '💾 Saving…' : `💾 Save ${Object.keys(parsePreview).length} Targets`}
+            </button>
+          </div>
         </div>
       )}
 
@@ -267,29 +342,13 @@ function TangailDailyReport({ userArea, areaWiseData, user }) {
             {reportRows.map((row, i) => (
               <tr key={i} className={`tdr-row ${rowClass(row.ach)}`}>
                 <td className="tdr-td-plaza">{row.plaza}</td>
-
-                {/* Target cell — input when admin is editing, otherwise value */}
                 <td className="tdr-td-target">
-                  {isAdmin && isEditingTargets ? (
-                    <input
-                      className="tdr-target-input"
-                      type="number"
-                      min="0"
-                      value={editingTargets[row.plaza] ?? ''}
-                      onChange={e => handleTargetChange(row.plaza, e.target.value)}
-                      placeholder="0"
-                    />
-                  ) : (
-                    row.target > 0 ? fmt(row.target) : <span className="tdr-no-target">—</span>
-                  )}
+                  {row.target > 0 ? fmt(row.target) : <span className="tdr-no-target">—</span>}
                 </td>
-
                 <td className="tdr-td-ach">{fmt(row.ach)}</td>
-
                 <td className={`tdr-td-not-ach ${row.target > 0 ? (row.notAch === 0 ? 'tdr-not-ach-zero' : 'tdr-not-ach-pending') : ''}`}>
                   {row.target > 0 ? fmt(row.notAch) : <span className="tdr-no-target">—</span>}
                 </td>
-
                 <td className={`tdr-td-coll-pct ${row.collPct !== null ? (parseFloat(row.collPct) >= 100 ? 'tdr-pct-full' : parseFloat(row.collPct) >= 50 ? 'tdr-pct-mid' : 'tdr-pct-low') : ''}`}>
                   {row.collPct !== null ? `${row.collPct}%` : <span className="tdr-no-target">—</span>}
                 </td>
@@ -299,16 +358,10 @@ function TangailDailyReport({ userArea, areaWiseData, user }) {
             {/* ── Total row ── */}
             <tr className="tdr-row-total">
               <td className="tdr-td-total-label">Total</td>
-              <td className="tdr-td-total-value">
-                {totalTarget > 0 ? fmt(totalTarget) : '—'}
-              </td>
+              <td className="tdr-td-total-value">{totalTarget > 0 ? fmt(totalTarget) : '—'}</td>
               <td className="tdr-td-total-value">{fmt(totalAch)}</td>
-              <td className="tdr-td-total-value">
-                {totalTarget > 0 ? fmt(totalNotAch) : '—'}
-              </td>
-              <td className="tdr-td-total-value tdr-pct-total">
-                {totalCollPct !== null ? `${totalCollPct}%` : '—'}
-              </td>
+              <td className="tdr-td-total-value">{totalTarget > 0 ? fmt(totalNotAch) : '—'}</td>
+              <td className="tdr-td-total-value tdr-pct-total">{totalCollPct !== null ? `${totalCollPct}%` : '—'}</td>
             </tr>
           </tbody>
         </table>
