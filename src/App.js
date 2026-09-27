@@ -741,7 +741,7 @@ function App() {
           )}
 
           {areaWiseData.length > 0 && userArea && (
-            <TangailDailyReport userArea={userArea} areaWiseData={areaWiseData} />
+            <TangailDailyReport userArea={userArea} areaWiseData={areaWiseData} user={user} />
           )}
 
           {areaWiseData.length > 0 && userArea && (

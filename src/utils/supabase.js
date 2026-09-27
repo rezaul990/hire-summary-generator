@@ -330,3 +330,87 @@ export const getYesterdayPlazaCollectionForArea = async (areaName) => {
     return {};
   }
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TANGAIL PLAZA TARGETS
+// Table: tangail_plaza_targets
+//   plaza_name   TEXT PRIMARY KEY
+//   target_qty   INTEGER DEFAULT 0
+//   updated_at   TIMESTAMPTZ
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Fetch daily targets for all Tangail plazas.
+ * Returns { [plaza_name]: target_qty }
+ *
+ * @returns {Promise<Object>}
+ */
+export const getTangailPlazaTargets = async () => {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/tangail_plaza_targets?select=plaza_name,target_qty`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+
+    if (!response.ok) return {};
+
+    const data = await response.json();
+    const result = {};
+    data.forEach(r => {
+      result[r.plaza_name] = r.target_qty;
+    });
+    return result;
+  } catch (error) {
+    console.error('Failed to fetch Tangail plaza targets:', error);
+    return {};
+  }
+};
+
+/**
+ * Upsert daily targets for Tangail plazas (admin only).
+ * Existing rows are updated via ON CONFLICT resolution.
+ *
+ * @param {Array<{plaza_name: string, target_qty: number}>} targets
+ * @returns {Promise<boolean>}
+ */
+export const saveTangailPlazaTargets = async (targets) => {
+  if (!targets || targets.length === 0) return false;
+
+  try {
+    const records = targets.map(t => ({
+      plaza_name: t.plaza_name,
+      target_qty: parseInt(t.target_qty) || 0,
+      updated_at: new Date().toISOString(),
+    }));
+
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/tangail_plaza_targets`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'resolution=merge-duplicates,return=minimal',
+        },
+        body: JSON.stringify(records),
+      }
+    );
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('saveTangailPlazaTargets error:', text);
+    }
+    return response.ok;
+  } catch (error) {
+    console.error('Failed to save Tangail plaza targets:', error);
+    return false;
+  }
+};
