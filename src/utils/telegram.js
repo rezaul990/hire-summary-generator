@@ -1,4 +1,5 @@
 import { getYesterdayData, getYesterdayTangailPlazaData } from './supabase.js';
+import { generateTangailDailyReportBlob } from './tangailDailyReportImage.js';
 
 // Telegram Bot Configuration
 const TELEGRAM_BOT_TOKEN = '8628472212:AAEBDPpAmX9h_13bsRRE7ccxNtMqsp3uHu8';
@@ -28,6 +29,33 @@ export const sendTelegramMessage = async (message) => {
     return data.ok;
   } catch (error) {
     console.error('Failed to send Telegram message:', error);
+    return false;
+  }
+};
+
+/**
+ * Send a photo/image to Telegram
+ * @param {Blob} blob - The image blob to send
+ * @param {string} caption - Optional caption (HTML supported)
+ * @param {string} filename - Optional filename for the uploaded photo
+ * @returns {Promise<boolean>} - Success status
+ */
+export const sendTelegramPhoto = async (blob, caption = '', filename = 'report.png') => {
+  try {
+    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+    const form = new FormData();
+    form.append('chat_id', TELEGRAM_CHAT_ID);
+    form.append('photo', blob, filename);
+    if (caption) {
+      form.append('caption', caption);
+      form.append('parse_mode', 'HTML');
+    }
+
+    const response = await fetch(url, { method: 'POST', body: form });
+    const data = await response.json();
+    return data.ok;
+  } catch (error) {
+    console.error('Failed to send Telegram photo:', error);
     return false;
   }
 };
@@ -339,4 +367,15 @@ export const sendUploadNotification = async (areaWiseData) => {
   
   // Send Division-02 report
   await sendDivision02Report(areaWiseData);
+
+  // Send Tangail Daily Report as a PNG image
+  try {
+    const reportImage = await generateTangailDailyReportBlob(areaWiseData);
+    if (reportImage) {
+      const caption = `📍 <b>Tangail Daily Report</b>\n📅 ${new Date().toLocaleDateString('en-GB')}`;
+      await sendTelegramPhoto(reportImage.blob, caption, reportImage.filename);
+    }
+  } catch (err) {
+    console.error('Tangail Daily Report image failed:', err);
+  }
 };
