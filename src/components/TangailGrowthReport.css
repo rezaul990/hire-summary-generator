@@ -1,0 +1,284 @@
+.tgr-section {
+  margin-bottom: 30px;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────────── */
+.tgr-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.tgr-header h2 {
+  color: #ffffff;
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.tgr-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────────── */
+.tgr-save-btn,
+.tgr-edit-btn,
+.tgr-cancel-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.tgr-save-btn {
+  background: #E50914;
+  color: #ffffff;
+}
+.tgr-save-btn:hover:not(:disabled) {
+  background: #b20710;
+  transform: translateY(-2px);
+}
+
+.tgr-edit-btn {
+  background: rgba(229, 9, 20, 0.15);
+  color: #E50914;
+  border: 1.5px solid rgba(229, 9, 20, 0.4);
+}
+.tgr-edit-btn:hover:not(:disabled) {
+  background: rgba(229, 9, 20, 0.28);
+  transform: translateY(-2px);
+}
+
+.tgr-cancel-btn {
+  background: #333333;
+  color: #b3b3b3;
+}
+.tgr-cancel-btn:hover:not(:disabled) {
+  background: #444444;
+}
+
+.tgr-save-btn:disabled,
+.tgr-edit-btn:disabled,
+.tgr-cancel-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── Feedback message ───────────────────────────────────────────────────────── */
+.tgr-msg {
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.tgr-msg-ok {
+  background: rgba(70, 211, 105, 0.12);
+  border: 1px solid rgba(70, 211, 105, 0.35);
+  color: #46d369;
+}
+.tgr-msg-err {
+  background: rgba(229, 9, 20, 0.1);
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  color: #ff8080;
+}
+
+/* ── Capture / table container ──────────────────────────────────────────────── */
+.tgr-capture {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  max-width: 760px;
+}
+
+.tgr-title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f5c518;
+  padding: 10px 16px;
+}
+.tgr-title-text {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  letter-spacing: 0.3px;
+}
+.tgr-date-badge {
+  background: #e53e3e;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* ── Table ──────────────────────────────────────────────────────────────────── */
+.tgr-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tgr-table thead tr {
+  background: #234e52;
+}
+.tgr-table thead th {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 10px 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+.tgr-th-area {
+  text-align: left !important;
+  width: 30%;
+}
+.tgr-th-pct {
+  width: 19%;
+}
+.tgr-th-status {
+  width: 20%;
+}
+
+.tgr-table tbody td {
+  padding: 9px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-align: center;
+}
+
+.tgr-row-even td {
+  background: #1a1a1a;
+}
+.tgr-row-odd td {
+  background: #222222;
+}
+
+.tgr-td-area {
+  text-align: left;
+  font-weight: 700;
+}
+.tgr-td-pct {
+  font-weight: 700;
+}
+.tgr-current {
+  color: #f5c518;
+  font-weight: 800;
+}
+
+.tgr-empty {
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 400;
+}
+
+/* ── Growth / DeGrowth colours ──────────────────────────────────────────────── */
+.tgr-growth {
+  font-weight: 800;
+}
+.tgr-growth-up {
+  color: #46d369;
+}
+.tgr-growth-down {
+  color: #ff8080;
+}
+.tgr-growth-flat {
+  color: #b3b3b3;
+}
+.tgr-growth-none {
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 400;
+}
+
+/* ── Status colours ─────────────────────────────────────────────────────────── */
+.tgr-td-status {
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.tgr-status-up {
+  color: #46d369;
+}
+.tgr-status-down {
+  color: #ff8080;
+}
+.tgr-status-flat {
+  color: #b3b3b3;
+}
+.tgr-status-none {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+/* ── Manual edit input ──────────────────────────────────────────────────────── */
+.tgr-input {
+  width: 84px;
+  padding: 4px 8px;
+  border: 1.5px solid rgba(229, 9, 20, 0.6);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.18s;
+  -moz-appearance: textfield;
+}
+.tgr-input::-webkit-outer-spin-button,
+.tgr-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.tgr-input:focus {
+  border-color: #E50914;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.25);
+}
+
+/* ── Hint ───────────────────────────────────────────────────────────────────── */
+.tgr-hint {
+  color: #9a9a9a;
+  font-size: 0.78rem;
+  margin: 10px 0 0;
+  line-height: 1.5;
+}
+.tgr-hint strong {
+  color: #d0d0d0;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .tgr-capture {
+    max-width: 100%;
+  }
+  .tgr-title-text {
+    font-size: 0.9rem;
+  }
+  .tgr-table thead th {
+    padding: 8px 6px;
+    font-size: 0.72rem;
+    white-space: normal;
+  }
+  .tgr-table tbody td {
+    padding: 7px 6px;
+    font-size: 0.8rem;
+  }
+  .tgr-input {
+    width: 64px;
+    font-size: 0.78rem;
+  }
+}

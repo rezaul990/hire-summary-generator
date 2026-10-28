@@ -5,6 +5,7 @@ import Auth from './components/Auth';
 import MyAreaReport from './components/MyAreaReport';
 import TangailDailyReport from './components/TangailDailyReport';
 import TangailAreaReport from './components/TangailAreaReport';
+import TangailGrowthReport from './components/TangailGrowthReport';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
@@ -746,6 +747,10 @@ function App() {
 
           {areaWiseData.length > 0 && userArea && (
             <TangailAreaReport userArea={userArea} areaWiseData={areaWiseData} />
+          )}
+
+          {areaWiseData.length > 0 && userArea && (
+            <TangailGrowthReport userArea={userArea} areaWiseData={areaWiseData} />
           )}
 
           {divisionData.length > 0 && (

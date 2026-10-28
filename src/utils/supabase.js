@@ -414,3 +414,78 @@ export const saveTangailPlazaTargets = async (targets) => {
     return false;
   }
 };
+
+// Table: tangail_area_monthly_pct
+// Stores the "Previous Month Qty %" baseline per area (one snapshot, editable).
+
+/**
+ * Get stored Previous Month Qty % per area.
+ * @returns {Promise<Object>} - { area_name: qty_percent }
+ */
+export const getTangailAreaMonthlyPct = async () => {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/tangail_area_monthly_pct?select=area_name,qty_percent`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      }
+    );
+
+    if (!response.ok) return {};
+
+    const data = await response.json();
+    const result = {};
+    data.forEach(r => {
+      result[r.area_name] = Number(r.qty_percent);
+    });
+    return result;
+  } catch (error) {
+    console.error('Failed to fetch Tangail area monthly pct:', error);
+    return {};
+  }
+};
+
+/**
+ * Upsert the Previous Month Qty % per area.
+ * @param {Array<{area_name: string, qty_percent: number}>} records
+ * @returns {Promise<boolean>}
+ */
+export const saveTangailAreaMonthlyPct = async (records) => {
+  if (!records || records.length === 0) return false;
+
+  try {
+    const payload = records.map(r => ({
+      area_name: r.area_name,
+      qty_percent: Number(r.qty_percent) || 0,
+      updated_at: new Date().toISOString(),
+    }));
+
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/tangail_area_monthly_pct`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Prefer': 'resolution=merge-duplicates,return=minimal',
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      const text = await response.text();
+      console.error('saveTangailAreaMonthlyPct error:', text);
+    }
+    return response.ok;
+  } catch (error) {
+    console.error('Failed to save Tangail area monthly pct:', error);
+    return false;
+  }
+};
