@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import './TangailGrowthReport.css';
 import { getTangailAreaMonthlyPct, saveTangailAreaMonthlyPct } from '../utils/supabase';
 
@@ -13,6 +13,7 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
   const [draft, setDraft] = useState({});
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
+  const [selectedDivision, setSelectedDivision] = useState('');
 
   // ── Load stored Previous Month % ──────────────────────────────────────────
   useEffect(() => {
@@ -28,21 +29,48 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
     return () => { active = false; };
   }, [isTangailUser]);
 
+  // ── Build current area-wise Qty % from the uploaded file ──────────────────
+  // Area subtotal rows carry no Division, so map each area to its division
+  // from the plaza rows first.
+  const divisionOfArea = useMemo(() => {
+    const map = {};
+    (areaWiseData || []).forEach(row => {
+      if (row.isSubtotal || row.isGrandTotal) return;
+      if (row.Area && row.Division) map[row.Area] = row.Division;
+    });
+    return map;
+  }, [areaWiseData]);
+
+  const allAreaRows = useMemo(() =>
+    (areaWiseData || [])
+      .filter(row => row.isSubtotal && !row.isGrandTotal)
+      .map(row => {
+        const collectible = parseFloat(row.Collectible_Acc_Qty || 0);
+        const collected = parseFloat(row.Collected_Acc_Qty || 0);
+        const curPct = collectible > 0 ? (collected / collectible) * 100 : 0;
+        const area = cleanArea(row.Area);
+        return { area, curPct, division: divisionOfArea[area] || '' };
+      })
+      .sort((a, b) => a.area.localeCompare(b.area)),
+    [areaWiseData, divisionOfArea]
+  );
+
+  const divisions = useMemo(
+    () => [...new Set(allAreaRows.map(r => r.division).filter(Boolean))].sort(),
+    [allAreaRows]
+  );
+
+  const areaRows = useMemo(
+    () => (selectedDivision
+      ? allAreaRows.filter(r => r.division === selectedDivision)
+      : allAreaRows),
+    [allAreaRows, selectedDivision]
+  );
+
   // Only Tangail-area users see this section
   if (!isTangailUser) return null;
 
-  // ── Build current area-wise Qty % from the uploaded file ──────────────────
-  const areaRows = (areaWiseData || [])
-    .filter(row => row.isSubtotal && !row.isGrandTotal)
-    .map(row => {
-      const collectible = parseFloat(row.Collectible_Acc_Qty || 0);
-      const collected = parseFloat(row.Collected_Acc_Qty || 0);
-      const curPct = collectible > 0 ? (collected / collectible) * 100 : 0;
-      return { area: cleanArea(row.Area), curPct };
-    })
-    .sort((a, b) => a.area.localeCompare(b.area));
-
-  if (areaRows.length === 0) return null;
+  if (allAreaRows.length === 0) return null;
 
   const pctText = (v) => `${Number(v).toFixed(2)}%`;
 
@@ -73,9 +101,10 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
   };
 
   // ── Save current upload's % as Previous Month baseline ────────────────────
+  // Always snapshots ALL areas, even when the table is filtered by division.
   const handleSaveCurrent = async () => {
     const confirmed = window.confirm(
-      `💾 Save the current Qty % of ${areaRows.length} areas as the Previous Month baseline?\n\n` +
+      `💾 Save the current Qty % of ${allAreaRows.length} areas as the Previous Month baseline?\n\n` +
       `Future uploads will compare against these values.`
     );
     if (!confirmed) return;
@@ -83,7 +112,7 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
     setSaving(true);
     setMsg('');
 
-    const records = areaRows.map(r => ({
+    const records = allAreaRows.map(r => ({
       area_name: r.area,
       qty_percent: Number(r.curPct.toFixed(2)),
     }));
@@ -103,7 +132,7 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
   // ── Manual edit ───────────────────────────────────────────────────────────
   const handleEditOpen = () => {
     const d = {};
-    areaRows.forEach(r => {
+    allAreaRows.forEach(r => {
       d[r.area] = prevPct[r.area] != null ? String(prevPct[r.area]) : '';
     });
     setDraft(d);
@@ -119,7 +148,7 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
 
   const handleSaveEdits = async () => {
     const records = [];
-    for (const r of areaRows) {
+    for (const r of allAreaRows) {
       const raw = draft[r.area];
       if (raw === '' || raw == null) continue;
       const num = parseFloat(raw);
@@ -191,6 +220,26 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
           <span className="tgr-date-badge">{new Date().toLocaleDateString('en-GB')}</span>
         </div>
 
+        {divisions.length > 1 && (
+          <div className="tgr-filter-bar">
+            <label htmlFor="tgrDivisionFilter">Filter by Division:</label>
+            <select
+              id="tgrDivisionFilter"
+              className="tgr-filter-select"
+              value={selectedDivision}
+              onChange={e => setSelectedDivision(e.target.value)}
+            >
+              <option value="">All Divisions</option>
+              {divisions.map(div => (
+                <option key={div} value={div}>{div}</option>
+              ))}
+            </select>
+            <span className="tgr-filter-count">
+              {areaRows.length} of {allAreaRows.length} areas
+            </span>
+          </div>
+        )}
+
         <table className="tgr-table">
           <thead>
             <tr>
@@ -202,6 +251,13 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
             </tr>
           </thead>
           <tbody>
+            {areaRows.length === 0 && (
+              <tr>
+                <td className="tgr-td-area tgr-empty-row" colSpan={5}>
+                  No areas found in this division.
+                </td>
+              </tr>
+            )}
             {areaRows.map((row, i) => {
               const g = growthOf(row.area, row.curPct);
               return (
