@@ -201,7 +201,10 @@
   width: 30%;
 }
 .tgr-th-pct {
-  width: 19%;
+  width: 17%;
+}
+.tgr-th-need {
+  width: 17%;
 }
 .tgr-th-status {
   width: 20%;
@@ -253,6 +256,24 @@
   color: #b3b3b3;
 }
 .tgr-growth-none {
+  color: rgba(255, 255, 255, 0.35);
+  font-weight: 400;
+}
+
+/* ── Need Qty to Break Even ─────────────────────────────────────────────────── */
+.tgr-need {
+  font-weight: 800;
+}
+.tgr-need-short {
+  color: #ff8080; /* red: shortfall, need more to break even */
+}
+.tgr-need-surplus {
+  color: #46d369; /* green: surplus, already above baseline */
+}
+.tgr-need-zero {
+  color: #b3b3b3;
+}
+.tgr-need-na {
   color: rgba(255, 255, 255, 0.35);
   font-weight: 400;
 }

@@ -49,7 +49,7 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
         const collected = parseFloat(row.Collected_Acc_Qty || 0);
         const curPct = collectible > 0 ? (collected / collectible) * 100 : 0;
         const area = cleanArea(row.Area);
-        return { area, curPct, division: divisionOfArea[area] || '' };
+        return { area, curPct, collectible, collected, division: divisionOfArea[area] || '' };
       })
       .sort((a, b) => a.area.localeCompare(b.area)),
     [areaWiseData, divisionOfArea]
@@ -98,6 +98,24 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
     if (g > 0) return 'Growth';
     if (g < 0) return 'DeGrowth';
     return 'No change';
+  };
+
+  // ── Need Qty to Break Even ───────────────────────────────────────────────────
+  // Need Qty = (Collectible * Previous Month %) - Collected
+  // Positive → shortfall to reach last month's % (red)
+  // Negative → already above last month's % (green)
+  const needQtyOf = (area, collectible, collected) => {
+    const prev = prevPct[area];
+    if (prev == null) return null;
+    const target = collectible * (prev / 100);
+    return target - collected;
+  };
+
+  const needClass = (need) => {
+    if (need == null) return 'tgr-need tgr-need-na';
+    if (need > 0) return 'tgr-need tgr-need-short';
+    if (need < 0) return 'tgr-need tgr-need-surplus';
+    return 'tgr-need tgr-need-zero';
   };
 
   // ── Save current upload's % as Previous Month baseline ────────────────────
@@ -247,13 +265,14 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
               <th className="tgr-th-pct">Previous Month Qty %</th>
               <th className="tgr-th-pct">Current Month Qty %</th>
               <th className="tgr-th-pct">Growth / DeGrowth</th>
+              <th className="tgr-th-need">Need Qty to Break Even</th>
               <th className="tgr-th-status">Status</th>
             </tr>
           </thead>
           <tbody>
             {areaRows.length === 0 && (
               <tr>
-                <td className="tgr-td-area tgr-empty-row" colSpan={5}>
+                <td className="tgr-td-area tgr-empty-row" colSpan={6}>
                   No areas found in this division.
                 </td>
               </tr>
@@ -284,6 +303,13 @@ function TangailGrowthReport({ userArea, areaWiseData }) {
                   </td>
                   <td className="tgr-td-pct tgr-current">{pctText(row.curPct)}</td>
                   <td className={growthClass(g)}>{growthText(g)}</td>
+                  <td className={needClass(needQtyOf(row.area, row.collectible, row.collected))}>
+                    {(() => {
+                      const need = needQtyOf(row.area, row.collectible, row.collected);
+                      if (need == null) return '—';
+                      return `${need > 0 ? '+' : ''}${need.toFixed(0)}`;
+                    })()}
+                  </td>
                   <td className={`tgr-td-status ${g == null ? 'tgr-status-none' : g > 0 ? 'tgr-status-up' : g < 0 ? 'tgr-status-down' : 'tgr-status-flat'}`}>
                     {g == null ? '—' : g > 0 ? '▲' : g < 0 ? '▼' : '●'} {statusText(g)}
                   </td>
